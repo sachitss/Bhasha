@@ -83,7 +83,6 @@ async function synth(voice, locale, text, rate, attempt = 1) {
 const FILTER = "silenceremove=start_periods=1:start_threshold=-50dB,areverse,silenceremove=start_periods=1:start_threshold=-50dB,areverse,apad=pad_dur=0.15,loudnorm=I=-18:TP=-1.5:LRA=11";
 const HAS_FFMPEG = spawnSync("ffmpeg", ["-version"]).status === 0;
 function writeAudio(file, buf) {
-  if (!HAS_FFMPEG) { writeFileSync(file, buf); return; }
   const tmp = `${tmpdir()}/bhasha-${process.pid}-${Math.random().toString(36).slice(2)}.mp3`;
   writeFileSync(tmp, buf);
   const r = spawnSync("ffmpeg", ["-loglevel", "error", "-y", "-i", tmp, "-af", FILTER, "-ac", "1", "-ar", "24000", "-b:a", "48k", file]);
@@ -114,6 +113,7 @@ async function main() {
   console.log(`${plan.length} files to generate (${chars} characters).`);
   if (DRY) return;
   if (!KEY) throw new Error("Set AZURE_SPEECH_KEY (and AZURE_SPEECH_REGION) to generate audio.");
+  if (!HAS_FFMPEG) throw new Error("ffmpeg is required to trim and normalise the audio.");
 
   resolveVoices(await listVoices());
   for (const slot of Object.keys(VOICES)) mkdirSync(`${OUT}/${slot}`, { recursive: true });

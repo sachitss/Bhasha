@@ -27,7 +27,9 @@ jobs:
         with: { node-version: 22 }
       - name: Azure Neural TTS
         if: env.AZURE_SPEECH_KEY != ''
-        run: node scripts/generate-audio.mjs ${{ inputs.force && '--force' || '' }}
+        run: |
+          command -v ffmpeg || (sudo apt-get update && sudo apt-get install -y ffmpeg)
+          node scripts/generate-audio.mjs ${{ inputs.force && '--force' || '' }}
       - uses: actions/setup-python@v5
         if: env.AZURE_SPEECH_KEY == ''
         with: { python-version: "3.12" }

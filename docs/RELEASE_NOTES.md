@@ -1,9 +1,8 @@
-Bhasha 1.0.1 – German · English · Nepali
+Bhasha 1.0.2 – German · English · Nepali
 
-- Built-in voices in every package: German, English and Nepali, female and male (870 audio clips, works offline)
-- Android/iOS: speech now works without installed system voices; the device speech engine is the backup
-- Android: the app no longer slides under the status bar; system bars follow light/dark theme
-- Voice settings show the built-in voice and a Test button
-- More tests: every word has audio in all six voices; real playback tested in the browser
+- Native Microsoft neural voices built into every package, female and male:
+  German Katja / Conrad · English Sonia / Ryan · Nepali Hemkala / Sagar
+- Clips trimmed and volume-matched, so playback starts immediately and pronunciation feedback compares against the real word length
+- Includes all 1.0.1 fixes (speech on Android without installed voices, status-bar layout)
 
 Installers: see the files below. Unsigned builds show a security prompt on first launch; see docs/RELEASE.md.

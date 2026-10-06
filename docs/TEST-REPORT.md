@@ -1,4 +1,4 @@
-# Test report – v1.0.1
+# Test report – v1.0.2
 
 Date: 2026-10-06. Status legend: ✅ pass · ⚠️ needs action or known limitation. Release v1.0.0 built all platforms on the first run.
 
@@ -19,6 +19,7 @@ Date: 2026-10-06. Status legend: ✅ pass · ⚠️ needs action or known limita
 | Browser: every tab without horizontal overflow; trip course starts | ✅ | – | – | – | – |
 | Unit: built-in audio covers all 145 texts × 6 voices (870 files) | ✅ | – | – | – | – |
 | Audio check: no silent files; word length 0.8–1.0 s median in every voice | ✅ | – | – | – | – |
+| Azure audio: 870 clips, Katja/Conrad, Sonia/Ryan, Hemkala/Sagar | ✅ | Clips padded with ~1.4 s silence | Medium (wrong reference length, delayed playback) | Trim + loudness normalisation; CI now requires ffmpeg | ✅ word median 0.8–1.0 s |
 | Browser: real audio plays for all six voices; voice label follows Female/Male | ✅ | – | – | – | – |
 | Android device (Samsung S23 Ultra, v1.0.0): no speech, "no voice installed" | ✅ fixed | Android web view has no speech synthesis | High | Audio bundled in package + native speech engine backup | Pending device |
 | Android device (v1.0.0): header under the status bar | ✅ fixed | Edge-to-edge layout on Android 15 | Medium | Capacitor margin adjustment, themed system bars | Pending device |
@@ -41,7 +42,7 @@ Date: 2026-10-06. Status legend: ✅ pass · ⚠️ needs action or known limita
 
 ## Known limitations (v1)
 
-- ⚠️ Built-in voices use Piper (open source). Azure neural voices (Katja/Conrad, Sonia/Ryan, Hemkala/Sagar) replace them once an Azure subscription and key are added.
+- Built-in voices: Azure neural (Katja/Conrad, Sonia/Ryan, Hemkala/Sagar); Piper is the automatic fallback if the Azure key is removed.
 - ⚠️ Pronunciation feedback is an educational estimate (tempo, volume, pauses), not phoneme-level assessment.
 - ⚠️ No accounts or cross-device sync; reminders are not included in v1 (need native notifications or a server).
 - ⚠️ Builds are unsigned until store accounts and signing secrets are set up (see RELEASE.md).

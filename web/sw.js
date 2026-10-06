@@ -1,5 +1,5 @@
 // Bhasha service worker: app shell precached; audio cached on first play (or all at once via "download audio").
-const VERSION = "1.0.1";
+const VERSION = "1.0.2";
 const SHELL = `bhasha-shell-${VERSION}`;
 const AUDIO = "bhasha-audio-v1";
 const SHELL_FILES = [

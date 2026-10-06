@@ -117,7 +117,7 @@ test("built-in audio files play in every language and voice", async ({ page }) =
   });
   for (const [slot, d] of Object.entries(result)) expect(d, slot).toBeGreaterThan(0.3);
   await page.locator("#pairBtn").click();
-  await expect(page.getByText(/Built-in voice: Kerstin/)).toBeVisible();
+  await expect(page.getByText(/Built-in voice: Katja/)).toBeVisible();
   await page.locator('[data-a="setp"][data-k="gender"][data-v="m"]').click();
-  await expect(page.getByText(/Built-in voice: Thorsten/)).toBeVisible();
+  await expect(page.getByText(/Built-in voice: Conrad/)).toBeVisible();
 });

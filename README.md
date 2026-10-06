@@ -35,14 +35,15 @@ npm run test:e2e     # browser tests (phone + desktop)
 
 Every package (web, Android, iOS, desktop) contains audio for every word, phrase and example sentence in German, English and Nepali, female and male, so pronunciation works offline and on devices without any installed voices. The **Generate native audio** workflow creates it:
 
-| | Female | Male | Engine |
-|---|---|---|---|
-| German | Kerstin | Thorsten | Piper (default) |
-| English (UK) | Cori | Alan | Piper (default) |
-| Nepali | Nepali female (Google dataset) | Chitwan | Piper (default) |
-| all three | Katja / Sonia / Hemkala | Conrad / Ryan / Sagar | Azure Neural TTS (optional, higher quality) |
+| | Female | Male |
+|---|---|---|
+| German | Katja | Conrad |
+| English (UK) | Sonia | Ryan |
+| Nepali | Hemkala | Sagar |
 
-Piper needs no account. To switch to Azure: add repository secrets `AZURE_SPEECH_KEY` and `AZURE_SPEECH_REGION` (e.g. `westeurope`), then run **Actions → Generate native audio** with "Regenerate all files" ticked. Voice credits and licences: [web/audio/CREDITS.md](web/audio/CREDITS.md).
+Generated with **Azure Neural TTS** (repository secrets `AZURE_SPEECH_KEY`, `AZURE_SPEECH_REGION`). Without those secrets the workflow falls back to **Piper** (open source): Kerstin/Thorsten, Cori/Alan, Nepali female/Chitwan.
+
+After changing content, the audio for changed texts regenerates automatically. Voice credits and licences: [web/audio/CREDITS.md](web/audio/CREDITS.md).
 
 When a file is missing, the app falls back to the device's speech engine (Android/iOS through the native speech service, browsers through the Web Speech API).
 
