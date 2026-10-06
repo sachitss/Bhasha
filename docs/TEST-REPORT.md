@@ -1,6 +1,6 @@
 # Test report – v1.0.0
 
-Date: 2026-10-06. Status legend: ✅ pass · ⏳ runs in CI on GitHub · ⚠️ known limitation.
+Date: 2026-10-06. Status legend: ✅ pass · ⚠️ needs action or known limitation. Release v1.0.0 built all platforms on the first run.
 
 ## Automated
 
@@ -19,9 +19,11 @@ Date: 2026-10-06. Status legend: ✅ pass · ⏳ runs in CI on GitHub · ⚠️ 
 | Browser: every tab without horizontal overflow; trip course starts | ✅ | – | – | – | – |
 | Browser: microphone denied → file upload → analysis and score shown | ✅ | – | – | – | – |
 | Desktop: Linux release build (.deb) and launch on virtual display | ✅ | – | – | – | – |
-| Desktop: Windows and macOS builds | ⏳ | | | | |
-| Android APK/AAB build | ⏳ | | | | |
-| iOS device and simulator builds | ⏳ | | | | |
+| Desktop: Windows (MSI, EXE) and macOS universal (DMG) builds in CI | ✅ | – | – | – | – |
+| Android APK and AAB build in CI (Java 21, SDK 35) | ✅ | – | – | – | – |
+| iOS device (unsigned IPA) and simulator builds in CI (Xcode, macOS 15) | ✅ | – | – | – | – |
+| GitHub CI: unit + browser tests on push | ✅ | – | – | – | – |
+| GitHub Pages deploy | ⚠️ | Pages not yet enabled in repo settings | Medium | Owner enables Settings → Pages → Source: GitHub Actions | Pending |
 
 ## Manual checks still needed on real devices
 
