@@ -1,0 +1,16 @@
+name: Voice discovery (Piper)
+on: workflow_dispatch
+permissions: { contents: read }
+jobs:
+  list:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          curl -sL https://huggingface.co/rhasspy/piper-voices/resolve/main/voices.json -o voices.json
+          python3 - <<'PY'
+          import json
+          v=json.load(open("voices.json"))
+          for lang in ["de_DE","en_GB","ne_NP"]:
+              items=[f'{k}(n={x.get("num_speakers")};spk={",".join(list((x.get("speaker_id_map") or {}).keys())[:12])})' for k,x in sorted(v.items()) if x["language"]["code"]==lang]
+              print(f"::notice title={lang}::"+" | ".join(items))
+          PY
