@@ -1,0 +1,23 @@
+name: Android APK (build only)
+# Builds an unsigned release APK and attaches it to a draft release named "android-build-<run>",
+# so it can be signed outside CI (e.g. with a locally held upload key). The draft is never published.
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 21 }
+      - run: npm ci
+      - run: npx cap sync android
+      - run: cd android && chmod +x gradlew && ./gradlew --no-daemon assembleRelease
+      - env: { GH_TOKEN: "${{ github.token }}" }
+        run: |
+          cp android/app/build/outputs/apk/release/app-release-unsigned.apk bhasha-release-unsigned.apk
+          gh release create "android-build-${GITHUB_RUN_NUMBER}" --draft --title "Android build ${GITHUB_RUN_NUMBER} (unsigned, internal)" --notes "Unsigned release APK for signing. Not for distribution." bhasha-release-unsigned.apk
