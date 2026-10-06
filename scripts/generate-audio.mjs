@@ -9,6 +9,8 @@
 // Only changed texts are regenerated (hashes in web/audio/hashes.json). Text is sent to Azure only
 // when this script runs; the app itself never sends anything to Azure.
 import { createHash } from "node:crypto";
+import { spawnSync } from "node:child_process";
+import { tmpdir } from "node:os";
 import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, unlinkSync } from "node:fs";
 import { jobsFor } from "./audio-jobs.mjs";
 
@@ -76,6 +78,19 @@ async function synth(voice, locale, text, rate, attempt = 1) {
   return Buffer.from(await r.arrayBuffer());
 }
 
+// Azure pads every clip with ~0.25 s of silence before and ~1.1 s after. Trim it (keeping 0.15 s of tail)
+// and even out loudness, so reference lengths are real and playback starts at once. Needs ffmpeg.
+const FILTER = "silenceremove=start_periods=1:start_threshold=-50dB,areverse,silenceremove=start_periods=1:start_threshold=-50dB,areverse,apad=pad_dur=0.15,loudnorm=I=-18:TP=-1.5:LRA=11";
+const HAS_FFMPEG = spawnSync("ffmpeg", ["-version"]).status === 0;
+function writeAudio(file, buf) {
+  if (!HAS_FFMPEG) { writeFileSync(file, buf); return; }
+  const tmp = `${tmpdir()}/bhasha-${process.pid}-${Math.random().toString(36).slice(2)}.mp3`;
+  writeFileSync(tmp, buf);
+  const r = spawnSync("ffmpeg", ["-loglevel", "error", "-y", "-i", tmp, "-af", FILTER, "-ac", "1", "-ar", "24000", "-b:a", "48k", file]);
+  unlinkSync(tmp);
+  if (r.status !== 0) throw new Error(`ffmpeg failed for ${file}: ${r.stderr}`);
+}
+
 async function pool(tasks, n) {
   let i = 0;
   await Promise.all(Array.from({ length: n }, async () => { while (i < tasks.length) await tasks[i++](); }));
@@ -89,7 +104,7 @@ async function main() {
   for (const slot of Object.keys(VOICES)) {
     const [lang] = slot.split("-");
     for (const j of jobsFor(lang)) {
-      const h = sha(VOICES[slot] + "|" + j.rate + "|" + j.text);
+      const h = sha("trim1|" + VOICES[slot] + "|" + j.rate + "|" + j.text);
       const file = `${OUT}/${slot}/${j.key}.mp3`;
       if (!FORCE && hashes[`${slot}/${j.key}`] === h && existsSync(file)) continue;
       plan.push({ slot, lang, ...j, h, file });
@@ -104,8 +119,8 @@ async function main() {
   for (const slot of Object.keys(VOICES)) mkdirSync(`${OUT}/${slot}`, { recursive: true });
   let done = 0;
   await pool(plan.map((p) => async () => {
-    const h = sha(VOICES[p.slot] + "|" + p.rate + "|" + p.text);
-    writeFileSync(p.file, await synth(VOICES[p.slot], LOCALE[p.lang], p.text, p.rate));
+    const h = sha("trim1|" + VOICES[p.slot] + "|" + p.rate + "|" + p.text);
+    writeAudio(p.file, await synth(VOICES[p.slot], LOCALE[p.lang], p.text, p.rate));
     hashes[`${p.slot}/${p.key}`] = h;
     if (++done % 50 === 0) console.log(`  ${done}/${plan.length}`);
   }), 4);
