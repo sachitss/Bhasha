@@ -1,6 +1,7 @@
 name: Generate native audio
-# Creates native-speaker audio (Azure Neural TTS) for German, English and Nepali, female and male.
-# Needs repository secrets AZURE_SPEECH_KEY and AZURE_SPEECH_REGION (e.g. westeurope).
+# Builds the audio files bundled in every package (web, Android, iOS, desktop):
+# German, English and Nepali, female and male, for every word, phrase and example sentence.
+# Engine: Azure Neural TTS when the AZURE_SPEECH_KEY secret is set, otherwise Piper (open source, no account).
 on:
   workflow_dispatch:
     inputs:
@@ -10,32 +11,40 @@ on:
         default: false
   push:
     branches: [main]
-    paths: [web/js/content.js, scripts/generate-audio.mjs]
+    paths: [web/js/content.js, scripts/generate-audio.mjs, scripts/generate-audio-piper.py, scripts/audio-jobs.mjs]
 permissions:
   contents: write
 concurrency: { group: audio, cancel-in-progress: false }
 jobs:
   generate:
     runs-on: ubuntu-latest
+    env:
+      AZURE_SPEECH_KEY: ${{ secrets.AZURE_SPEECH_KEY }}
+      AZURE_SPEECH_REGION: ${{ secrets.AZURE_SPEECH_REGION }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
-      - name: Generate audio
-        env:
-          AZURE_SPEECH_KEY: ${{ secrets.AZURE_SPEECH_KEY }}
-          AZURE_SPEECH_REGION: ${{ secrets.AZURE_SPEECH_REGION }}
+      - name: Azure Neural TTS
+        if: env.AZURE_SPEECH_KEY != ''
+        run: node scripts/generate-audio.mjs ${{ inputs.force && '--force' || '' }}
+      - uses: actions/setup-python@v5
+        if: env.AZURE_SPEECH_KEY == ''
+        with: { python-version: "3.12" }
+      - name: Piper TTS
+        if: env.AZURE_SPEECH_KEY == ''
         run: |
-          if [ -z "$AZURE_SPEECH_KEY" ]; then
-            echo "::warning::AZURE_SPEECH_KEY is not set. Add it under Settings → Secrets and variables → Actions, then run this workflow again."
-            exit 0
-          fi
-          node scripts/generate-audio.mjs ${{ inputs.force && '--force' || '' }}
+          command -v ffmpeg || (sudo apt-get update && sudo apt-get install -y ffmpeg)
+          pip install -q piper-tts
+          python -m piper.download_voices --download-dir voices de_DE-kerstin-low de_DE-thorsten-high en_GB-cori-high en_GB-alan-medium ne_NP-google-medium ne_NP-chitwan-medium
+          python3 scripts/generate-audio-piper.py ${{ inputs.force && '--force' || '' }}
+          du -sh web/audio
       - name: Commit audio
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add web/audio
           if git diff --cached --quiet; then echo "No audio changes."; exit 0; fi
-          git commit -m "Update native audio"
+          git commit -m "Update built-in audio"
+          git pull --rebase origin main
           git push

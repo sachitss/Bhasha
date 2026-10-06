@@ -144,3 +144,17 @@ test("every interface string exists in German and Nepali", () => {
     assert.ok(S.ne[k], `ne missing ${k}`);
   }
 });
+
+test("built-in audio covers every word, phrase and example in all six voices", async () => {
+  const { readFileSync, existsSync } = await import("node:fs");
+  const { jobsFor } = await import("../../scripts/audio-jobs.mjs");
+  const index = JSON.parse(readFileSync("web/audio/index.json", "utf8"));
+  if (!Object.keys(index.files || {}).length) return; // audio not generated yet
+  for (const slot of ["de-f", "de-m", "en-f", "en-m", "ne-f", "ne-m"]) {
+    const have = new Set(index.files[slot] || []);
+    for (const j of jobsFor(slot.slice(0, 2))) {
+      assert.ok(have.has(j.key), `${slot} missing ${j.key}`);
+      assert.ok(existsSync(`web/audio/${slot}/${j.key}.mp3`), `${slot}/${j.key}.mp3 missing on disk`);
+    }
+  }
+});

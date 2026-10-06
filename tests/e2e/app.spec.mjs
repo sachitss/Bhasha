@@ -57,14 +57,14 @@ test("interface switches to Nepali and German independently of the learning lang
 });
 
 test("native audio file is used for the selected gender", async ({ page }) => {
-  await page.route("**/audio/index.json", (r) => r.fulfill({ json: { voices: { "de-f": "de-DE-KatjaNeural", "de-m": "de-DE-ConradNeural" }, files: { "de-f": ["g1", "f1", "d1"], "de-m": ["g1", "f1", "d1"] } } }));
+  await page.route("**/audio/index.json", (r) => r.fulfill({ json: { voices: { "de-f": "de-DE-KatjaNeural", "de-m": "de-DE-ConradNeural" }, labels: { "de-f": "Katja", "de-m": "Conrad" }, files: { "de-f": ["g1", "f1", "d1"], "de-m": ["g1", "f1", "d1"] } } }));
   const requested = [];
   page.on("request", (r) => { if (r.url().endsWith(".mp3")) requested.push(new URL(r.url()).pathname); });
   await page.route("**/*.mp3", (r) => r.fulfill({ status: 404, body: "" }));
   await page.goto("/");
   await page.locator("#pairBtn").click();
   await page.locator('[data-a="setp"][data-k="gender"][data-v="m"]').click();
-  await expect(page.getByText(/Native audio: Conrad/)).toBeVisible();
+  await expect(page.getByText(/Built-in voice: Conrad/)).toBeVisible();
   await page.locator('[data-a="closeSheet"].btn').click();
   await page.evaluate(() => window.__bhasha.TTS.speak("Hallo", "de", 1, "g1"));
   await expect.poll(() => requested).toContain("/audio/de-m/g1.mp3");

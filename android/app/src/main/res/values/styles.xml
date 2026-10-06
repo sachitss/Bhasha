@@ -13,6 +13,11 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:background">@null</item>
+        <!-- System bar areas match the app background (light/dark) -->
+        <item name="android:windowBackground">@color/bhasha_bg</item>
+        <item name="android:statusBarColor">@color/bhasha_bg</item>
+        <item name="android:navigationBarColor">@color/bhasha_bg</item>
+        <item name="android:windowLightStatusBar">@bool/bhasha_light_bars</item>
     </style>
 
 

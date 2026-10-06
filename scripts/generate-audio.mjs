@@ -10,7 +10,7 @@
 // when this script runs; the app itself never sends anything to Azure.
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, unlinkSync } from "node:fs";
-import { ITEMS } from "../web/js/content.js";
+import { jobsFor } from "./audio-jobs.mjs";
 
 const OUT = "web/audio";
 const args = new Set(process.argv.slice(2));
@@ -30,16 +30,6 @@ const VOICES = {
 
 const esc = (s) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;" }[c]));
 const sha = (s) => createHash("sha1").update(s).digest("hex").slice(0, 16);
-
-// What to speak: the item itself (slightly slower, for learners) and its example sentence.
-function jobsFor(lang) {
-  const jobs = [];
-  for (const it of ITEMS) {
-    if (it[lang]) jobs.push({ key: it.id, text: it[lang], rate: "-10%" });
-    if (it.ex && it.ex[lang]) jobs.push({ key: it.id + ".ex", text: it.ex[lang], rate: "-5%" });
-  }
-  return jobs;
-}
 
 function ssml(voice, locale, text, rate) {
   return `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="${locale}">` +

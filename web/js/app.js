@@ -38,16 +38,18 @@ function planNumbers(){const due=dueItems(); return Object.assign(planCore({minu
 function buildSession(mode){return buildCore({items:ITEMS,words:WORDS,prog:prog(),profile:P(),wotdId:wotd().id,dueIds:dueItems(),accuracy:recentAcc(),mode})}
 
 /* ---------- Audio: generated native recordings first, device voice as fallback ---------- */
-// web/audio/index.json is written by scripts/generate-audio.mjs (Azure Neural TTS):
-// { voices: {"de-f": "de-DE-KatjaNeural", ...}, files: {"de-f": ["g1","g1.ex", ...], ...} }
-let AUDIO={voices:{},files:{}};
-fetch("audio/index.json",{cache:"no-cache"}).then(r=>r.ok?r.json():null).then(j=>{if(j){AUDIO={voices:j.voices||{},files:Object.fromEntries(Object.entries(j.files||{}).map(([k,v])=>[k,new Set(v)]))}; if(route==="speak"||sheet)render()}}).catch(()=>{});
+// web/audio/index.json is written by the audio generators (scripts/generate-audio.mjs for Azure,
+// scripts/generate-audio-piper.py for Piper): { voices, labels: {"de-f": "Kerstin"}, files: {"de-f": ["g1","g1.ex", ...]} }
+let AUDIO={voices:{},labels:{},files:{}};
+fetch("audio/index.json",{cache:"no-cache"}).then(r=>r.ok?r.json():null).then(j=>{if(j){AUDIO={voices:j.voices||{},labels:j.labels||{},files:Object.fromEntries(Object.entries(j.files||{}).map(([k,v])=>[k,new Set(v)]))}; if(route==="speak"||sheet)render()}}).catch(()=>{});
 const hasAudio=(lang,g,key)=>!!(AUDIO.files[lang+"-"+g]&&AUDIO.files[lang+"-"+g].has(key));
 function audioUrl(lang,key){const g=P().gender||"f", other=g==="f"?"m":"f";
   if(hasAudio(lang,g,key))return `audio/${lang}-${g}/${key}.mp3`;
   if(hasAudio(lang,other,key))return `audio/${lang}-${other}/${key}.mp3`;
   return null}
-const nativeVoiceName=lang=>{const g=P().gender||"f"; const n=AUDIO.voices[lang+"-"+g]; return n&&AUDIO.files[lang+"-"+g]&&AUDIO.files[lang+"-"+g].size?n.replace(/^[a-z]{2}-[A-Z]{2}-/,"").replace(/Neural$/,""):null};
+const nativeVoiceName=lang=>{const slot=lang+"-"+(P().gender||"f"); const n=AUDIO.labels[slot]||AUDIO.voices[slot]; return n&&AUDIO.files[slot]&&AUDIO.files[slot].size?n.replace(/^[a-z]{2}-[A-Z]{2}-/,"").replace(/Neural$/,""):null};
+// Android/iOS app: the web view has no speech synthesis, so the device's own speech engine is used through a plugin.
+const NativeTTS=()=>(window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.TextToSpeech)||null;
 let player=null;
 const TTS={voices:[],warned:{},
   load(){try{this.voices=speechSynthesis.getVoices()||[]}catch(e){this.voices=[]}},
@@ -55,7 +57,7 @@ const TTS={voices:[],warned:{},
   ranked(lang){this.load(); return this.voices.map(v=>[v,this.score(v,lang)]).filter(x=>x[1]>=0).sort((a,b)=>b[1]-a[1])},
   pick(lang){const r=this.ranked(lang); const want=D.voice[lang]; if(want){const v=r.find(x=>x[0].voiceURI===want); if(v)return v[0]} return r.length?r[0][0]:null},
   quality(v,lang){return isHighQualityVoice(v,lang,P().gender||"f")},
-  stop(){try{speechSynthesis.cancel()}catch(e){} if(player){player.pause();player=null}},
+  stop(){try{speechSynthesis.cancel()}catch(e){} const nt=NativeTTS(); if(nt)nt.stop().catch(()=>{}); if(player){player.pause();player=null}},
   /** key: item id, or id+".ex" for the example sentence. Uses generated native audio when present. */
   speak(text,lang,rate=1,key){
     this.stop();
@@ -66,6 +68,8 @@ const TTS={voices:[],warned:{},
     this.device(text,lang,rate,key);
   },
   device(text,lang,rate,key){
+    const nt=NativeTTS();
+    if(nt){nt.stop().catch(()=>{}); nt.speak({text,lang:{de:"de-DE",en:"en-GB",ne:"ne-NP"}[lang],rate,pitch:1,volume:1,category:"playback"}).catch(()=>toast(t("noVoice",{lang:t("lang_"+lang)}))); return}
     if(!("speechSynthesis" in window)){toast(t("noVoice",{lang:t("lang_"+lang)}));return}
     this.load(); const v=this.pick(lang);
     if(!v&&this.voices.length){toast(t("noVoice",{lang:t("lang_"+lang)}));}
@@ -385,8 +389,9 @@ function voiceFields(){
   const langs=[P().target].concat(["de","en","ne"].filter(l=>l!==P().target));
   return `<div class="field"><label>${t("voices")}</label>${langs.map(l=>{const r=TTS.ranked(l), cur=TTS.pick(l);
     const nat=nativeVoiceName(l);
+    if(nat)return `<div class="row between" style="flex-wrap:nowrap"><div style="min-width:0"><div class="small" style="font-weight:500">${t("voiceFor",{lang:t("lang_"+l)})}</div><div><b>★ ${t("nativeAudio",{name:esc(nat)})}</b></div></div><button class="btn sm" data-a="testVoice" data-l="${l}">${ic("play")}${t("testVoice")}</button></div>`;
+    if(NativeTTS())return `<div class="row between" style="flex-wrap:nowrap"><div class="small" style="font-weight:500">${t("voiceFor",{lang:t("lang_"+l)})}: ${t("deviceVoice")}</div><button class="btn sm" data-a="testVoice" data-l="${l}">${ic("play")}${t("testVoice")}</button></div>`;
     return `<div class="stack" style="gap:6px"><label for="vs-${l}" class="small" style="font-weight:500">${t("voiceFor",{lang:t("lang_"+l)})}</label>
-     ${nat?`<p class="small"><b>★ ${t("nativeAudio",{name:esc(nat)})}</b></p><p class="small muted">${t("deviceVoice")}</p>`:""}
      <div class="row" style="flex-wrap:nowrap"><select id="vs-${l}" class="text-in" data-voice="${l}" style="flex:1;min-width:0">
       <option value="">${t("autoVoice")}${cur?" · "+esc(cur.name):""}</option>
       ${r.map(([v,sc])=>`<option value="${esc(v.voiceURI)}" ${D.voice[l]===v.voiceURI?"selected":""}>${sc>=130?"★ ":""}${esc(v.name)} (${esc(v.lang)})</option>`).join("")}
@@ -439,9 +444,9 @@ document.addEventListener("click",e=>{
     case"detail":openSheet(detailSheet(id)); break;
     case"setp":{const k=el.dataset.k; let v=el.dataset.v; if(k==="minutes")v=+v; P()[k]=v;
       if(k==="known"&&P().target===v)P().target=["de","en","ne"].find(l=>l!==v);
-      if(k==="gender"){D.voice={}; TTS.speak(TESTS[P().target],P().target,1)}
+      if(k==="gender"){D.voice={}; const l=P().target; if(nativeVoiceName(l))TTS.speak(BY.g1.ex[l],l,1,"g1.ex"); else TTS.speak(TESTS[l],l,1)}
       persist(); openSheet(profileSheet()); render(); break}
-    case"testVoice":TTS.speak(TESTS[el.dataset.l],el.dataset.l,1); break;
+    case"testVoice":{const l=el.dataset.l; if(nativeVoiceName(l))TTS.speak(BY.g1.ex[l],l,1,"g1.ex"); else TTS.speak(TESTS[l],l,1); break}
     case"install":installEvt&&installEvt.prompt(); installEvt=null; openSheet(profileSheet()); break;
     case"downloadData":{const blob=new Blob([JSON.stringify({exported:new Date().toISOString(),profile:D.profile,progress:D.prog,saved:D.favs,activity:D.act},null,2)],{type:"application/json"});
       const u=URL.createObjectURL(blob), l=document.createElement("a"); l.href=u; l.download="bhasha-data-"+todayKey()+".json"; document.body.appendChild(l); l.click(); l.remove(); setTimeout(()=>URL.revokeObjectURL(u),2000); break}

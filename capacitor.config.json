@@ -2,6 +2,13 @@
   "appId": "com.sachitss.bhasha",
   "appName": "Bhasha",
   "webDir": "web",
-  "android": { "allowMixedContent": false },
-  "ios": { "contentInset": "never", "limitsNavigationsToAppBoundDomains": false }
+  "android": {
+    "allowMixedContent": false,
+    "adjustMarginsForEdgeToEdge": "force"
+  },
+  "ios": {
+    "contentInset": "never",
+    "limitsNavigationsToAppBoundDomains": false
+  },
+  "backgroundColor": "#0E1222"
 }
