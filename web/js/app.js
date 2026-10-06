@@ -15,10 +15,15 @@ try{D=JSON.parse(localStorage.getItem(KEY))||null}catch(e){D=null}
 if(!D){D=JSON.parse(JSON.stringify(DEF))}
 D.profile=Object.assign({},DEF.profile,D.profile||{}); D.prog=D.prog||{}; D.favs=D.favs||[]; D.act=D.act||{}; D.refDur=D.refDur||{}; D.voice=D.voice||{};
 // First visit: interface follows the device language when it is one of ours.
-try{if(!localStorage.getItem(KEY)){const nl=(navigator.language||"en").slice(0,2); if(["de","ne"].includes(nl)){D.profile.ui=nl; D.profile.known=nl; D.profile.target=nl==="de"?"ne":"de"}}}catch(e){}
+try{if(!localStorage.getItem(KEY)){const nl=(navigator.language||"en").slice(0,2); if(["de","ne","ko"].includes(nl)){D.profile.ui=nl; D.profile.known=nl; D.profile.target=nl==="de"?"ne":nl==="ko"?"en":"de"}}}catch(e){}
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(D))}catch(e){}}
 const P=()=>D.profile;
 const t=(k,v)=>{let s=(S[P().ui]&&S[P().ui][k])??S.en[k]??k; if(v)for(const x in v)s=s.replace("{"+x+"}",v[x]); return s};
+const LANGS=["de","en","ne","ko"];
+const LOCALE={de:"de-DE",en:"en-GB",ne:"ne-NP",ko:"ko-KR"};
+const ROM_LANGS=["ne","ko"]; // scripts shown with optional romanisation
+const romOf=(it,l)=>ROM_LANGS.includes(l)&&P().rom&&it.rom&&it.rom[l]?it.rom[l]:"";
+const noteOf=it=>{const n=it.kind==="phrase"?it.note:(it.notes&&it.notes[P().target]); return n?(n[P().ui]||n.en):""};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const prog=()=>(D.prog[P().target]=D.prog[P().target]||{});
 const act=()=>(D.act[todayKey()]=D.act[todayKey()]||{min:0,xp:0,ok:0,n:0});
@@ -69,12 +74,12 @@ const TTS={voices:[],warned:{},
   },
   device(text,lang,rate,key){
     const nt=NativeTTS();
-    if(nt){nt.stop().catch(()=>{}); nt.speak({text,lang:{de:"de-DE",en:"en-GB",ne:"ne-NP"}[lang],rate,pitch:1,volume:1,category:"playback"}).catch(()=>toast(t("noVoice",{lang:t("lang_"+lang)}))); return}
+    if(nt){nt.stop().catch(()=>{}); nt.speak({text,lang:LOCALE[lang],rate,pitch:1,volume:1,category:"playback"}).catch(()=>toast(t("noVoice",{lang:t("lang_"+lang)}))); return}
     if(!("speechSynthesis" in window)){toast(t("noVoice",{lang:t("lang_"+lang)}));return}
     this.load(); const v=this.pick(lang);
     if(!v&&this.voices.length){toast(t("noVoice",{lang:t("lang_"+lang)}));}
     if(v&&lang==="ne"&&!v.lang.toLowerCase().startsWith("ne")&&!this.warned.hi){this.warned.hi=1;toast(t("hiFallback"))}
-    const u=new SpeechSynthesisUtterance(text); u.lang=v?v.lang:{de:"de-DE",en:"en-GB",ne:"ne-NP"}[lang]; if(v)u.voice=v; u.rate=rate;
+    const u=new SpeechSynthesisUtterance(text); u.lang=v?v.lang:LOCALE[lang]; if(v)u.voice=v; u.rate=rate;
     let t0=0; u.onstart=()=>{t0=performance.now()}; u.onend=()=>{if(key&&rate===1&&t0&&!D.refDur[key+":"+lang]){D.refDur[key+":"+lang]=(performance.now()-t0)/1000;persist()}};
     speechSynthesis.speak(u);
   }};
@@ -101,7 +106,7 @@ async function handleBlob(id,blob){
   if(an){const pr=prog(); const p=pr[id]||(pr[id]=newProgress()); p.pron=(p.pron||[]).concat(an.score).slice(-10); addXP(5,null); persist()}
   rerenderRec(id);
 }
-function expectedDur(id){const tl=P().target, it=BY[id]; return D.refDur[id+":"+tl]||expectedDuration(it[tl],tl==="ne"?it.rom:null)}
+function expectedDur(id){const tl=P().target, it=BY[id]; return D.refDur[id+":"+tl]||expectedDuration(it[tl],it.rom&&it.rom[tl]||null)}
 async function analyse(blob,id){
   const buf=await blob.arrayBuffer(); const AC=window.AudioContext||window.webkitAudioContext; const ctx=new AC();
   const audio=await new Promise((res,rej)=>{const p=ctx.decodeAudioData(buf,res,rej); if(p&&p.then)p.then(res,rej)}); ctx.close&&ctx.close();
@@ -143,7 +148,7 @@ const STSYM={new:"○",learning:"◔",familiar:"◑",mastered:"●",review:"↻"
 const pill=s=>`<span class="pill ${s}"><span aria-hidden="true">${STSYM[s]}</span>${t("st_"+s)}</span>`;
 function target(item,size=""){
   const tl=P().target, g=tl==="de"&&item.kind==="word"?(item.de.match(/^(der|die|das)\s/)||[])[1]:null;
-  return `<div><span class="word ${size}" lang="${tl}">${esc(item[tl])}</span>${g?`<span class="gender">${g==="der"?"m":g==="die"?"f":"n"}</span>`:""}${tl==="ne"&&P().rom?`<div class="rom">${esc(item.rom)}</div>`:""}</div>`;
+  return `<div><span class="word ${size}" lang="${tl}">${esc(item[tl])}</span>${g?`<span class="gender">${g==="der"?"m":g==="die"?"f":"n"}</span>`:""}${romOf(item,tl)?`<div class="rom">${esc(romOf(item,tl))}</div>`:""}</div>`;
 }
 const known=item=>esc(item[P().known]);
 const listenBtns=(id,text)=>`<div class="row"><button class="btn sm" data-a="say" data-id="${id}">${ic("play")}${t("listen")}</button><button class="btn sm" data-a="say" data-id="${id}" data-rate="0.6">${ic("slow")}${t("slow")}</button>${text?"":""}</div>`;
@@ -185,7 +190,7 @@ function planCard(){
 }
 function vHome(){
   const w=wotd(), p=potd(), a=act();
-  const phr=P().level==="a"?`<section class="card stack" aria-labelledby="potdH"><div class="eyebrow" id="potdH">${t("potd")}</div>${target(p,"md")}<p>${known(p)}</p><p class="note">${esc(p.note[P().ui]||p.note.en)}</p><div class="row">${listenBtns(p.id)}${favBtn(p.id)}<button class="btn sm" data-a="speakItem" data-id="${p.id}">${ic("mic")}${t("practice")}</button></div></section>`:"";
+  const phr=P().level==="a"?`<section class="card stack" aria-labelledby="potdH"><div class="eyebrow" id="potdH">${t("potd")}</div>${target(p,"md")}<p>${known(p)}</p><p class="note">${esc(noteOf(p))}</p><div class="row">${listenBtns(p.id)}${favBtn(p.id)}<button class="btn sm" data-a="speakItem" data-id="${p.id}">${ic("mic")}${t("practice")}</button></div></section>`:"";
   return `
   <div class="stats">
    <div class="stat"><b>${streak()}</b><span>${t("streak")}</span></div>
@@ -198,7 +203,7 @@ function vHome(){
    ${target(w)}
    <p style="font-size:18px">${known(w)}</p>
    <div class="ex"><div class="t" lang="${P().target}">${esc(w.ex[P().target])}</div><div class="small muted">${esc(w.ex[P().known])}</div></div>
-   ${w.note?`<p class="note">${esc(w.note[P().ui]||w.note.en)}</p>`:""}
+   ${noteOf(w)?`<p class="note">${esc(noteOf(w))}</p>`:""}
    <div class="row">${listenBtns(w.id)}${favBtn(w.id)}<button class="btn sm" data-a="speakItem" data-id="${w.id}">${ic("mic")}${t("practice")}</button></div>
   </section>
   ${phr}
@@ -238,7 +243,7 @@ function vSession(){
   if(task.type==="study"){
     body=`${target(item)}<p style="font-size:19px">${known(item)}</p>${listenBtns(item.id)}
       ${item.ex?`<div class="ex"><div class="t" lang="${tl}">${esc(item.ex[tl])}</div><div class="small muted">${esc(item.ex[P().known])}</div></div>`:""}
-      ${item.note&&item.kind!=="phrase"?`<p class="note">${esc(item.note[P().ui]||item.note.en)}</p>`:""}
+      ${item.kind!=="phrase"&&noteOf(item)?`<p class="note">${esc(noteOf(item))}</p>`:""}
       <div style="margin-top:auto" class="stack"><p class="small muted">${t("recog")}</p>${gradeBtns(item.id)}</div>`;
   }
   if(task.type==="reverse"){
@@ -259,7 +264,7 @@ function vSession(){
     if(task.type==="fill"){const core=coreWord(item[tl]); const re=new RegExp(core.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),"i"); prompt=`<p class="muted">${t("fill")}</p><div class="word md" lang="${tl}">${esc(item.ex[tl].replace(re,"_____"))}</div><p class="small muted">${esc(item.ex[P().known])}</p>`}
     body=prompt+`<div class="opts">${st.opts.map(id=>{const o=BY[id]; let cls=""; if(st.answered){if(id===item.id)cls="ok"; else if(id===st.pick)cls="no"}
       const lab=task.type==="fill"?coreWord(o[tl]):o[tl];
-      return `<button class="opt ${cls}" data-a="pick" data-id="${id}" ${st.answered?"disabled":""} lang="${tl}">${esc(lab)}${tl==="ne"&&P().rom?`<div class="rom">${esc(o.rom)}</div>`:""}</button>`}).join("")}</div>
+      return `<button class="opt ${cls}" data-a="pick" data-id="${id}" ${st.answered?"disabled":""} lang="${tl}">${esc(lab)}${romOf(o,tl)?`<div class="rom">${esc(romOf(o,tl))}</div>`:""}</button>`}).join("")}</div>
       ${st.answered?feedback(st.ok,item)+`<button class="btn primary block" data-a="nextTask">${t("next")}</button>`:""}`;
   }
   if(task.type==="pron"){
@@ -300,12 +305,12 @@ function rerenderRec(id){const el=document.getElementById("rec-"+id); if(!el)ret
 function vWords(){
   const tl=P().target, q=ui.q.trim().toLowerCase();
   const list=ITEMS.filter(i=>i.kind!=="phrase"||P().level==="a").filter(i=>ui.filter==="all"||ui.filter==="fav"?(ui.filter!=="fav"||D.favs.includes(i.id)):stateOf(i.id)===ui.filter)
-    .filter(i=>!q||[i.de,i.en,i.ne,i.rom].some(x=>x.toLowerCase().includes(q)));
+    .filter(i=>!q||[i.de,i.en,i.ne,i.ko,i.rom.ne,i.rom.ko].filter(Boolean).some(x=>x.toLowerCase().includes(q)));
   const counts={}; ITEMS.forEach(i=>{const s=stateOf(i.id);counts[s]=(counts[s]||0)+1});
   const f=["all","new","learning","familiar","mastered","review","fav"];
   return `<label class="sr" for="q">${t("search")}</label><input id="q" class="search" type="search" placeholder="${t("search")}" value="${esc(ui.q)}">
    <div class="chips" role="group" aria-label="Filter">${f.map(k=>`<button class="chip" data-a="filter" data-f="${k}" aria-pressed="${ui.filter===k}">${k==="all"?t("all"):k==="fav"?"★ "+t("favs"):STSYM[k]+" "+t("st_"+k)} <span class="muted">${k==="all"?ITEMS.length:k==="fav"?D.favs.length:counts[k]||0}</span></button>`).join("")}</div>
-   <div class="list">${list.slice(0,120).map(i=>`<button class="li" data-a="detail" data-id="${i.id}"><div class="main"><div class="word sm" lang="${tl}">${esc(i[tl])}${tl==="ne"&&P().rom?` <span class="rom">${esc(i.rom)}</span>`:""}</div><div class="sub">${esc(i[P().known])} · ${t("t_"+i.topic)}</div></div>${pill(stateOf(i.id))}</button>`).join("")||`<div class="li muted">–</div>`}</div>`;
+   <div class="list">${list.slice(0,120).map(i=>`<button class="li" data-a="detail" data-id="${i.id}"><div class="main"><div class="word sm" lang="${tl}">${esc(i[tl])}${romOf(i,tl)?` <span class="rom">${esc(romOf(i,tl))}</span>`:""}</div><div class="sub">${esc(i[P().known])} · ${t("t_"+i.topic)}</div></div>${pill(stateOf(i.id))}</button>`).join("")||`<div class="li muted">–</div>`}</div>`;
 }
 function detailSheet(id){
   const i=BY[id], tl=P().target, p=prog()[id];
@@ -313,7 +318,7 @@ function detailSheet(id){
    <div class="row between"><span class="eyebrow">${t("t_"+i.topic)} · ${t("lvl_"+i.level)}</span>${pill(stateOf(id))}</div>
    ${target(i)}<p style="font-size:18px">${known(i)}</p>
    ${i.ex?`<div class="ex"><div class="eyebrow">${t("example")}</div><div class="t" lang="${tl}">${esc(i.ex[tl])}</div><div class="small muted">${esc(i.ex[P().known])}</div></div>`:""}
-   ${i.note?`<p class="note">${esc(i.note[P().ui]||i.note.en)}</p>`:""}
+   ${noteOf(i)?`<p class="note">${esc(noteOf(i))}</p>`:""}
    ${p&&p.seen?`<p class="small muted">${t("nextRev")}: ${nextIn(p.due)} · ✓ ${p.ok} · ✗ ${p.bad}</p>`:""}
    <div class="row">${listenBtns(id)}${favBtn(id)}<button class="btn sm" data-a="speakItem" data-id="${id}">${ic("mic")}${t("practice")}</button></div>
    <button class="btn block" data-a="closeSheet">${t("close_")}</button></div></div>`;
@@ -337,7 +342,7 @@ function vTravel(){
   const done=ITEMS.filter(i=>i.kind==="travel"&&stateOf(i.id)!=="new").length, total=TRV.length;
   return `<section class="card wotd stack"><div class="row between"><div><h2 class="word md" style="font-size:22px">${t("trip")}</h2><p class="small muted">${t("tripSub")} · ${done}/${total}</p></div><button class="btn gold" data-a="trip">${t("practice")}</button></div></section>
    <div class="chips" role="group" aria-label="${t("travel")}"><button class="chip" data-a="sit" data-s="all" aria-pressed="${ui.sit==="all"}">${t("all")}</button>${sits.map(s=>`<button class="chip" data-a="sit" data-s="${s}" aria-pressed="${ui.sit===s}">${t("sit_"+s)}</button>`).join("")}</div>
-   <div class="list">${list.map(i=>`<div class="li" style="flex-wrap:wrap"><div class="main" style="min-width:200px"><div class="eyebrow" style="font-size:11px">${t("sit_"+i.sit)}</div><div class="word sm" lang="${tl}">${esc(i[tl])}</div>${tl==="ne"&&P().rom?`<div class="rom">${esc(i.rom)}</div>`:""}<div class="sub" style="white-space:normal">${esc(i[P().known])}</div></div>
+   <div class="list">${list.map(i=>`<div class="li" style="flex-wrap:wrap"><div class="main" style="min-width:200px"><div class="eyebrow" style="font-size:11px">${t("sit_"+i.sit)}</div><div class="word sm" lang="${tl}">${esc(i[tl])}</div>${romOf(i,tl)?`<div class="rom">${esc(romOf(i,tl))}</div>`:""}<div class="sub" style="white-space:normal">${esc(i[P().known])}</div></div>
      <div class="row" style="gap:6px"><button class="btn sm icon-btn" data-a="say" data-id="${i.id}" aria-label="${t("listen")}">${ic("play")}</button><button class="btn sm icon-btn" data-a="say" data-id="${i.id}" data-rate="0.6" aria-label="${t("slow")}">${ic("slow")}</button><button class="btn sm icon-btn" data-a="speakItem" data-id="${i.id}" aria-label="${t("practice")}">${ic("mic")}</button><button class="btn sm icon-btn" data-a="fav" data-id="${i.id}" aria-pressed="${D.favs.includes(i.id)}" aria-label="${D.favs.includes(i.id)?t("saved"):t("save")}" style="${D.favs.includes(i.id)?"color:var(--accent)":""}">${ic("star")}</button></div></div>`).join("")}</div>`;
 }
 
@@ -373,13 +378,13 @@ function vProgress(){
 
 /* ---- Profile sheet ---- */
 function profileSheet(){
-  const p=P(), langs=["de","en","ne"];
+  const p=P(), langs=LANGS;
   const seg=(key,opts,lab)=>`<div class="seg" role="group">${opts.map(o=>`<button data-a="setp" data-k="${key}" data-v="${o}" aria-pressed="${String(p[key])===String(o)}">${lab(o)}</button>`).join("")}</div>`;
   const pr=p.prio, tot=pr.vocab+pr.listen+pr.speak+pr.context||1;
   return `<div class="sheet-bg" data-a="closeSheet"><div class="sheet" role="dialog" aria-modal="true" aria-label="${t("profile")}" data-stop>
    <h2 class="word md" style="font-size:24px">${t("profile")}</h2>
    <div class="field"><label for="pname">${t("name")}</label><input id="pname" class="text-in" value="${esc(p.name)}" autocomplete="given-name"></div>
-   <div class="field"><label>${t("uiLang")}</label>${seg("ui",langs,l=>({de:"Deutsch",en:"English",ne:"नेपाली"})[l])}</div>
+   <div class="field"><label>${t("uiLang")}</label>${seg("ui",langs,l=>({de:"Deutsch",en:"English",ne:"नेपाली",ko:"한국어"})[l])}</div>
    <div class="field"><label>${t("iSpeak")}</label>${seg("known",langs,l=>t("lang_"+l))}</div>
    <div class="field"><label>${t("iLearn")}</label>${seg("target",langs.filter(l=>l!==p.known),l=>t("lang_"+l))}</div>
    <div class="field"><label>${t("level")}</label>${seg("level",["b","i","a"],l=>t("lvl_"+l))}</div>
@@ -393,7 +398,7 @@ function profileSheet(){
 }
 
 function voiceFields(){
-  const langs=[P().target].concat(["de","en","ne"].filter(l=>l!==P().target));
+  const langs=[P().target].concat(LANGS.filter(l=>l!==P().target));
   return `<div class="field"><label>${t("voices")}</label>${langs.map(l=>{const r=TTS.ranked(l), cur=TTS.pick(l);
     const nat=nativeVoiceName(l);
     if(nat)return `<div class="row between" style="flex-wrap:nowrap"><div style="min-width:0"><div class="small" style="font-weight:500">${t("voiceFor",{lang:t("lang_"+l)})}</div><div><b>★ ${t("nativeAudio",{name:esc(nat)})}</b></div></div><button class="btn sm" data-a="testVoice" data-l="${l}">${ic("play")}${t("testVoice")}</button></div>`;
@@ -406,7 +411,7 @@ function voiceFields(){
      ${!r.length?`<p class="small muted">${t("noVoice",{lang:t("lang_"+l)})}</p>`:""}
      ${!nat&&l==="de"&&!TTS.quality(cur,"de")?`<p class="note">${t("deTip")}</p>`:""}${!nat&&l==="ne"&&!(cur&&/hemkala|sagar/i.test(cur.name))?`<p class="note">${t("neTip")}</p>`:""}</div>`}).join("")}</div>`;
 }
-const TESTS={de:"Guten Morgen! Ich lerne gerade Deutsch. Wie geht es Ihnen?",en:"Good morning! I'm learning English. How are you?",ne:"नमस्ते! म नेपाली सिक्दैछु। तपाईंलाई कस्तो छ?"};
+const TESTS={de:"Guten Morgen! Ich lerne gerade Deutsch. Wie geht es Ihnen?",en:"Good morning! I'm learning English. How are you?",ne:"नमस्ते! म नेपाली सिक्दैछु। तपाईंलाई कस्तो छ?",ko:"안녕하세요! 저는 한국어를 배우고 있어요. 어떻게 지내세요?"};
 
 /* ---------- Events ---------- */
 let sheet=null;
@@ -450,7 +455,7 @@ document.addEventListener("click",e=>{
     case"topic":ui.filter="all"; ui.q=""; route="words"; render(); setTimeout(()=>{const first=WORDS.find(w=>w.topic===el.dataset.t); if(first)openSheet(detailSheet(first.id))},0); break;
     case"detail":openSheet(detailSheet(id)); break;
     case"setp":{const k=el.dataset.k; let v=el.dataset.v; if(k==="minutes")v=+v; P()[k]=v;
-      if(k==="known"&&P().target===v)P().target=["de","en","ne"].find(l=>l!==v);
+      if(k==="known"&&P().target===v)P().target=LANGS.find(l=>l!==v);
       if(k==="gender"){D.voice={}; const l=P().target; if(nativeVoiceName(l))TTS.speak(BY.g1.ex[l],l,1,"g1.ex"); else TTS.speak(TESTS[l],l,1)}
       persist(); openSheet(profileSheet()); render(); break}
     case"testVoice":{const l=el.dataset.l; if(nativeVoiceName(l))TTS.speak(BY.g1.ex[l],l,1,"g1.ex"); else TTS.speak(TESTS[l],l,1); break}

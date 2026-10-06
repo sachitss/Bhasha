@@ -12,5 +12,5 @@ export function jobsFor(lang) {
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  process.stdout.write(JSON.stringify({ de: jobsFor("de"), en: jobsFor("en"), ne: jobsFor("ne") }));
+  process.stdout.write(JSON.stringify({ de: jobsFor("de"), en: jobsFor("en"), ne: jobsFor("ne"), ko: jobsFor("ko") }));
 }

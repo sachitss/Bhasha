@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate built-in audio with Piper (open-source neural TTS, runs offline, no account needed).
+"""Generate built-in audio with Piper (German, English, Nepali; Piper has no Korean voice, so Korean needs Azure) (open-source neural TTS, runs offline, no account needed).
 
 Output matches scripts/generate-audio.mjs (Azure): web/audio/<lang>-<f|m>/<key>.mp3 plus web/audio/index.json.
 Requires: pip install piper-tts; ffmpeg; the voice models downloaded into ./voices

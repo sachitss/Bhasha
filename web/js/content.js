@@ -1,4 +1,4 @@
-// Learning content: words, travel phrases and phrases of the day.
+// Learning content: words, travel phrases and phrases of the day in German, English, Nepali and Korean.
 // Word rows: [id, topic, level(b|i|a), de, en, ne, romanised ne, example de, example en, example ne, note?]
 // Edit here, then run `npm run audio` (or the "Generate audio" workflow) to refresh native audio.
 export const RAW = [
@@ -98,8 +98,109 @@ export const TRV = [
 ["x22","social","Freut mich!","Nice to meet you!","तपाईंलाई भेटेर खुसी लाग्यो!","tapāī̃lāi bheṭera khusi lāgyo!"]
 ];
 
-export const ITEMS = RAW.map(r=>({id:r[0],topic:r[1],level:r[2],de:r[3],en:r[4],ne:r[5],rom:r[6],ex:{de:r[7],en:r[8],ne:r[9]},note:r[10]||null,kind:"word"}))
-  .concat(TRV.map(r=>({id:r[0],topic:"travel",sit:r[1],level:"b",de:r[2],en:r[3],ne:r[4],rom:r[5],ex:null,note:null,kind:"travel"})))
-  .concat(PHR.map(r=>({id:r[0],topic:"phrase",level:"a",de:r[1],en:r[2],ne:r[3],rom:r[4],ex:null,note:r[5],kind:"phrase"})));
+// Korean: id → [Hangul, romanisation (Revised Romanization), example sentence, note?]
+// Examples match the English example of the same item.
+export const KO = {
+  g1:["안녕하세요","annyeonghaseyo","안녕하세요, 어떻게 지내세요?"],
+  g2:["감사합니다","gamsahamnida","음식 감사합니다."],
+  g3:["부탁합니다","butakamnida","여기 앉으세요."],
+  g4:["네","ne","네, 좋아요."],
+  g5:["아니요","aniyo","아니요, 괜찮아요."],
+  g6:["실례합니다","sillyehamnida","실례합니다, 역이 어디예요?"],
+  g7:["안녕히 가세요","annyeonghi gaseyo","안녕히 가세요, 또 만나요!"],
+  g8:["좋은 아침입니다","joeun achimimnida","좋은 아침입니다, 베버 씨."],
+  n1:["하나","hana","차 한 잔 주세요."],
+  n2:["둘","dul","커피 두 잔 주세요."],
+  n3:["셋","set","저는 아이가 세 명 있어요."],
+  n4:["넷","net","네 시예요."],
+  n5:["다섯","daseot","오 분만 기다려 주세요."],
+  n6:["열","yeol","이건 십 유로예요.",{en:"Korean has two number systems: native numbers (하나, 둘, 셋 …) for counting things and hours, Sino-Korean (일, 이, 삼 … 십) for money, minutes and dates.",de:"Koreanisch hat zwei Zahlensysteme: koreanische Zahlen (하나, 둘, 셋 …) zum Zählen und für Stunden, sino-koreanische (일, 이, 삼 … 십) für Geld, Minuten und Daten.",ne:"कोरियालीमा दुई अङ्क प्रणाली छन्: गन्न र घण्टाका लागि 하나, 둘, 셋 …; पैसा, मिनेट र मितिका लागि 일, 이, 삼 … 십।",ko:"고유어 수(하나, 둘, 셋…)는 개수·시간에, 한자어 수(일, 이, 삼…십)는 돈·분·날짜에 씁니다."}],
+  f1:["어머니","eomeoni","어머니는 요리를 좋아하세요."],
+  f2:["아버지","abeoji","아버지는 카트만두에서 일하세요."],
+  f3:["형","hyeong","형은 저보다 나이가 많아요.",{en:"The word depends on who is speaking: 형 (hyeong) is a man's older brother, 오빠 (oppa) a woman's older brother, 남동생 (namdongsaeng) a younger brother.",de:"Das Wort hängt vom Sprecher ab: 형 (hyeong) älterer Bruder eines Mannes, 오빠 (oppa) einer Frau, 남동생 (namdongsaeng) jüngerer Bruder.",ne:"बोल्ने व्यक्तिअनुसार: 형 = पुरुषको दाजु, 오빠 = महिलाको दाजु, 남동생 = भाइ।",ko:"형: 남자가 부르는 형, 오빠: 여자가 부르는 오빠, 남동생: 동생."}],
+  f4:["누나","nuna","누나는 공부하고 있어요.",{en:"누나 (nuna) is a man's older sister, 언니 (eonni) a woman's older sister, 여동생 (yeodongsaeng) a younger sister.",de:"누나 (nuna) ältere Schwester eines Mannes, 언니 (eonni) einer Frau, 여동생 (yeodongsaeng) jüngere Schwester.",ne:"누나 = पुरुषको दिदी, 언니 = महिलाको दिदी, 여동생 = बहिनी।",ko:"누나: 남자가 부르는 누나, 언니: 여자가 부르는 언니, 여동생: 동생."}],
+  f5:["가족","gajok","우리 가족은 대가족이에요."],
+  f6:["아이","ai","아이가 놀고 있어요."],
+  d1:["물","mul","물 한 잔 주세요."],
+  d2:["밥","bap","우리는 밥과 렌틸콩을 먹어요.",{en:"밥 (bap) is cooked rice and also means 'meal'; uncooked rice is 쌀 (ssal).",de:"밥 (bap) ist gekochter Reis und heißt auch „Mahlzeit“; roher Reis ist 쌀 (ssal).",ne:"밥 = पकाएको भात (खाना पनि), 쌀 = चामल।",ko:"밥은 지은 밥(식사), 쌀은 익히지 않은 쌀입니다."}],
+  d3:["빵","ppang","빵이 신선해요."],
+  d4:["차","cha","차 드실래요?"],
+  d5:["우유","uyu","우유 넣은 커피 주세요."],
+  d6:["음식","eumsik","음식이 맛있어요."],
+  h1:["집","jip","우리 집은 작아요."],
+  h2:["책","chaek","저는 책을 읽고 있어요."],
+  h3:["문","mun","문 좀 닫아 주세요."],
+  v1:["먹다","meokda","우리는 일곱 시에 먹어요."],
+  v2:["마시다","masida","저는 물을 많이 마셔요."],
+  v3:["가다","gada","저는 집에 가요."],
+  v4:["오다","oda","어디에서 왔어요?"],
+  v5:["말하다","malhada","영어 할 줄 아세요?"],
+  v6:["이해하다","ihaehada","이해가 안 돼요."],
+  t1:["오늘","oneul","오늘은 따뜻해요."],
+  t2:["내일","naeil","내일 봐요!"],
+  t3:["어제","eoje","어제는 피곤했어요."],
+  r1:["왼쪽","oenjjok","왼쪽으로 가세요."],
+  r2:["오른쪽","oreunjjok","호텔은 오른쪽에 있어요."],
+  r3:["똑바로","ttokbaro","계속 똑바로 가세요."],
+  s1:["비싸다","bissada","너무 비싸요."],
+  s2:["싸다","ssada","그 셔츠는 싸요."],
+  s3:["얼마예요?","eolmayeyo?","이거 얼마예요?"],
+  w1:["일","il","오늘 일이 많아요."],
+  w2:["동료","dongnyo","제 동료가 저를 도와줘요."],
+  w3:["회의","hoeui","회의는 열 시에 시작해요."],
+  w4:["메시지","mesiji","메시지 보낼게요."],
+  w5:["계산서","gyesanseo","계산서 주세요."],
+  w6:["제시간에","jesigane","제시간에 와 주세요."],
+  w7:["경험","gyeongheom","그녀는 경험이 많아요."],
+  w8:["기회","gihoe","좋은 기회예요."],
+  w9:["기억하다","gieokada","저는 당신을 기억해요."],
+  a1:["책임","chaegim","그는 책임을 져요."],
+  a2:["도전","dojeon","그건 큰 도전이에요."],
+  a3:["전제 조건","jeonje jogeon","독일어 실력은 전제 조건이에요."],
+  a4:["합의","habui","우리는 합의에 도달했어요."],
+  a5:["개발","gaebal","개발은 이 년 걸려요."],
+  a6:["지속 가능성","jisok ganeungseong","지속 가능성은 우리에게 중요해요."],
+  p1:["행운을 빌어요!","haenguneul bireoyo!"],
+  p2:["다 잘 되고 있어요.","da jal doego isseoyo."],
+  p3:["하나도 모르겠어요.","hanado moreugesseoyo."],
+  p4:["그건 제 일이 아니에요.","geugeon je iri anieyo."],
+  p5:["물론이죠.","mullonijyo."],
+  x1:["체크인 카운터가 어디예요?","chekeuin kaunteoga eodiyeyo?"],
+  x2:["제 여행 가방이 안 왔어요.","je yeohaeng gabangi an wasseoyo."],
+  x3:["관광하러 왔어요.","gwangwanghareo wasseoyo."],
+  x4:["예약했어요.","yeyakaesseoyo."],
+  x5:["아침 식사는 몇 시예요?","achim siksaneun myeot siyeyo?"],
+  x6:["메뉴판 주세요.","menyupan juseyo."],
+  x7:["저는 채식주의자예요.","jeoneun chaesikjuuijayeyo."],
+  x8:["너무 맵지 않게 해 주세요.","neomu maepji anke hae juseyo."],
+  x9:["다음 버스는 언제 출발해요?","daeum beoseuneun eonje chulbalhaeyo?"],
+  x10:["이 주소로 가 주세요.","i jusoro ga juseyo."],
+  x11:["포카라행 표 한 장 주세요.","pokarahaeng pyo han jang juseyo."],
+  x12:["화장실이 어디예요?","hwajangsiri eodiyeyo?"],
+  x13:["여기서 멀어요?","yeogiseo meoreoyo?"],
+  x14:["카드로 계산할 수 있어요?","kadeuro gyesanhal su isseoyo?"],
+  x15:["좀 깎아 주실 수 있어요?","jom kkakka jusil su isseoyo?"],
+  x16:["도와주세요!","dowajuseyo!"],
+  x17:["구급차를 불러 주세요!","gugeupchareul bulleo juseyo!"],
+  x18:["의사가 필요해요.","uisaga piryohaeyo."],
+  x19:["여권을 잃어버렸어요.","yeogwoneul ireobeoryeosseoyo."],
+  x20:["여기 와이파이 있어요?","yeogi waipai isseoyo?"],
+  x21:["제 이름은 안나예요.","je ireumeun annayeyo."],
+  x22:["만나서 반갑습니다!","mannaseo bangapseumnida!"],
+};
+
+// Romanisation per language: rom.ne (Nepali) and rom.ko (Korean). Notes are per target language (notes.ne, notes.ko);
+// phrase usage notes (kind "phrase") apply to every language.
+const base = RAW.map(r=>({id:r[0],topic:r[1],level:r[2],de:r[3],en:r[4],ne:r[5],rom:{ne:r[6]},ex:{de:r[7],en:r[8],ne:r[9]},notes:r[10]?{ne:r[10]}:{},note:null,kind:"word"}))
+  .concat(TRV.map(r=>({id:r[0],topic:"travel",sit:r[1],level:"b",de:r[2],en:r[3],ne:r[4],rom:{ne:r[5]},ex:null,notes:{},note:null,kind:"travel"})))
+  .concat(PHR.map(r=>({id:r[0],topic:"phrase",level:"a",de:r[1],en:r[2],ne:r[3],rom:{ne:r[4]},ex:null,notes:{},note:r[5],kind:"phrase"})));
+for (const it of base) {
+  const k = KO[it.id];
+  if (!k) continue;
+  it.ko = k[0]; it.rom.ko = k[1];
+  if (it.ex && k[2]) it.ex.ko = k[2];
+  if (k[3]) it.notes.ko = k[3];
+}
+export const ITEMS = base;
 export const BY = Object.fromEntries(ITEMS.map(i=>[i.id,i]));
 export const WORDS = ITEMS.filter(i=>i.kind==="word");

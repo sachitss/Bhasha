@@ -114,6 +114,9 @@ test("voice choice prefers native Edge voices by gender", () => {
   const ne = [V("Microsoft Hemkala Online (Natural) - Nepali (Nepal)", "ne-NP"), V("Microsoft Sagar Online (Natural) - Nepali (Nepal)", "ne-NP"), V("Lekha", "hi-IN", true)];
   assert.match(best(ne, "ne", "f"), /Hemkala/);
   assert.match(best(ne, "ne", "m"), /Sagar/);
+  const ko = [V("Microsoft SunHi Online (Natural) - Korean (Korea)", "ko-KR"), V("Microsoft InJoon Online (Natural) - Korean (Korea)", "ko-KR"), V("Microsoft Heami - Korean (Korean)", "ko-KR", true)];
+  assert.match(best(ko, "ko", "f"), /SunHi/);
+  assert.match(best(ko, "ko", "m"), /InJoon/);
   assert.equal(voiceScore(V("Google français", "fr-FR"), "de", "f"), -1);
   assert.equal(voiceGender("Google UK English Male"), "m");
   assert.equal(voiceGender("Google UK English Female"), "f");
@@ -130,10 +133,11 @@ test("content is complete in all three languages", () => {
   const ids = new Set();
   for (const it of ITEMS) {
     assert.ok(!ids.has(it.id), `duplicate id ${it.id}`); ids.add(it.id);
-    for (const l of ["de", "en", "ne"]) assert.ok(it[l] && it[l].trim(), `${it.id} missing ${l}`);
-    assert.ok(it.rom, `${it.id} missing romanisation`);
+    for (const l of ["de", "en", "ne", "ko"]) assert.ok(it[l] && it[l].trim(), `${it.id} missing ${l}`);
+    assert.ok(it.rom.ne && it.rom.ko, `${it.id} missing romanisation`);
+    assert.match(it.ko, /[\uAC00-\uD7A3]/, `${it.id} Korean not Hangul`);
     assert.match(it.ne, /[ऀ-ॿ]/, `${it.id} Nepali not Devanagari`);
-    if (it.ex) for (const l of ["de", "en", "ne"]) assert.ok(it.ex[l], `${it.id} example missing ${l}`);
+    if (it.ex) for (const l of ["de", "en", "ne", "ko"]) assert.ok(it.ex[l], `${it.id} example missing ${l}`);
   }
   assert.ok(TRV.length >= 20 && PHR.length >= 5 && WORDS.length >= 50);
 });
@@ -145,12 +149,13 @@ test("every interface string exists in German and Nepali", () => {
   }
 });
 
-test("built-in audio covers every word, phrase and example in all six voices", async () => {
+test("built-in audio covers every word, phrase and example in every voice", async () => {
   const { readFileSync, existsSync } = await import("node:fs");
   const { jobsFor } = await import("../../scripts/audio-jobs.mjs");
   const index = JSON.parse(readFileSync("web/audio/index.json", "utf8"));
   if (!Object.keys(index.files || {}).length) return; // audio not generated yet
-  for (const slot of ["de-f", "de-m", "en-f", "en-m", "ne-f", "ne-m"]) {
+  const slots = ["de-f", "de-m", "en-f", "en-m", "ne-f", "ne-m"].concat(index.engine === "azure" ? ["ko-f", "ko-m"] : []);
+  for (const slot of slots) {
     const have = new Set(index.files[slot] || []);
     for (const j of jobsFor(slot.slice(0, 2))) {
       assert.ok(have.has(j.key), `${slot} missing ${j.key}`);

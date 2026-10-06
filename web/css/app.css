@@ -26,8 +26,8 @@
   --bg:#F3F4F9; --surface:#FFFFFF; --surface-2:#E8EBF4; --ink:#161D36; --muted:#5B6383; --line:#D6DBE8;
   --brand:#2B3A8C; --brand-ink:#FFFFFF; --accent:#E3A008; --accent-ink:#2A1D00; --accent-soft:#FBEFD0;
   --good:#1E7A4C; --warn:#A85A06; --bad:#B42318;
-  --f-display:"Martel","Noto Serif Devanagari",Georgia,serif;
-  --f-body:"Mukta","Noto Sans Devanagari",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-display:"Martel","Noto Serif Devanagari","Noto Serif KR","Apple SD Gothic Neo","Malgun Gothic",Georgia,serif;
+  --f-body:"Mukta","Noto Sans Devanagari","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,-apple-system,"Segoe UI",sans-serif;
   --r:14px;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
@@ -183,3 +183,6 @@ input[type=range]{width:100%;accent-color:var(--brand)}
 .powered .pb-meta{font-size:12.5px;color:var(--muted);overflow-wrap:anywhere}
 .powered .pb-meta a{color:inherit}
 .powered .pb-meta a:hover{color:var(--brand)}
+
+/* Hangul has no italics or tight tracking in the fallback fonts; keep word cards upright and readable */
+[lang="ko"]{font-style:normal;letter-spacing:0;word-break:keep-all}

@@ -20,7 +20,7 @@ const DRY = args.has("--dry-run"), FORCE = args.has("--force");
 const KEY = process.env.AZURE_SPEECH_KEY, REGION = process.env.AZURE_SPEECH_REGION || "westeurope";
 
 // Native neural voices per language and gender. Override with e.g. VOICE_DE_F=de-DE-SeraphinaMultilingualNeural.
-const LOCALE = { de: "de-DE", en: "en-GB", ne: "ne-NP" };
+const LOCALE = { de: "de-DE", en: "en-GB", ne: "ne-NP", ko: "ko-KR" };
 const VOICES = {
   "de-f": process.env.VOICE_DE_F || "de-DE-KatjaNeural",
   "de-m": process.env.VOICE_DE_M || "de-DE-ConradNeural",
@@ -28,6 +28,8 @@ const VOICES = {
   "en-m": process.env.VOICE_EN_M || "en-GB-RyanNeural",
   "ne-f": process.env.VOICE_NE_F || "ne-NP-HemkalaNeural",
   "ne-m": process.env.VOICE_NE_M || "ne-NP-SagarNeural",
+  "ko-f": process.env.VOICE_KO_F || "ko-KR-SunHiNeural",
+  "ko-m": process.env.VOICE_KO_M || "ko-KR-InJoonNeural",
 };
 
 const esc = (s) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;" }[c]));

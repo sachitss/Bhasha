@@ -106,7 +106,8 @@ test("built-in audio files play in every language and voice", async ({ page }) =
   await page.goto("/");
   const result = await page.evaluate(async () => {
     const out = {};
-    for (const slot of ["de-f", "de-m", "en-f", "en-m", "ne-f", "ne-m"]) {
+    const idx = await fetch("audio/index.json").then((r) => r.json());
+    for (const slot of Object.keys(idx.files).filter((k) => idx.files[k].includes("g1"))) {
       out[slot] = await new Promise((res) => {
         const a = new Audio(`audio/${slot}/g1.mp3`);
         a.onloadedmetadata = () => res(a.duration);
@@ -140,4 +141,27 @@ test("powered-by branding: logo undistorted, lower right, on every page", async 
     expect(Math.abs(r.rendered - r.natural) / r.natural).toBeLessThan(0.02);
     expect(r.vw - r.right).toBeLessThan(14); // right-aligned to the content column (logo card padding)
   }
+});
+
+test("Korean: interface and learning language with Hangul and romanisation", async ({ page }) => {
+  await page.goto("/");
+  await page.locator("#pairBtn").click();
+  await page.locator('[data-a="setp"][data-k="ui"][data-v="ko"]').click();
+  await page.locator('[data-a="setp"][data-k="target"][data-v="ko"]').click();
+  await page.locator('[data-a="closeSheet"].btn').click();
+  await expect(page.getByRole("button", { name: "오늘 학습 시작" })).toBeVisible();
+  await expect(page.locator(".wotd .word")).toHaveText(/[\uAC00-\uD7A3]/);
+  await expect(page.locator(".wotd .rom")).toBeVisible();
+  await page.getByRole("button", { name: "여행", exact: true }).click();
+  await expect(page.getByText("화장실이 어디예요?")).toBeVisible();
+  await page.getByRole("button", { name: "홈", exact: true }).click();
+  await page.getByRole("button", { name: "오늘 학습 시작" }).click();
+  for (let i = 0; i < 40; i++) {
+    if (await page.locator('[data-a="finish"]').count()) break;
+    for (const sel of ['[data-a="pick"]:not([disabled])', '[data-a="reveal"]', '[data-a="grade"][data-g="3"]', '[data-a="dontKnow"]', '[data-a="nextTask"]']) {
+      const el = page.locator(sel).first();
+      if (await el.count()) { await el.click(); break; }
+    }
+  }
+  await expect(page.locator('[data-a="finish"]')).toBeVisible();
 });

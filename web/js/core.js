@@ -207,12 +207,13 @@ export const PREFERRED_VOICE = {
   de: { f: /katja|seraphina|amala/, m: /conrad|killian|florian/ },
   en: { f: /sonia|libby|maisie/, m: /ryan|thomas/ },
   ne: { f: /hemkala/, m: /sagar/ },
+  ko: { f: /sunhi/, m: /injoon/ },
 };
 const GENDER_HINT = {
-  f: /female|weiblich|katja|seraphina|amala|hedda|anna|petra|helena|vicki|marlene|sonia|libby|maisie|hazel|susan|kate|serena|samantha|karen|moira|tessa|fiona|zira|aria|jenny|hemkala|lekha|swara/,
-  m: /\bmale|männlich|conrad|killian|florian|stefan|markus|yannick|hans|ryan|thomas|daniel|oliver|george|arthur|alfie|david|mark\b|guy|sagar|rishi|madhur/,
+  f: /female|weiblich|katja|seraphina|amala|hedda|anna|petra|helena|vicki|marlene|sonia|libby|maisie|hazel|susan|kate|serena|samantha|karen|moira|tessa|fiona|zira|aria|jenny|hemkala|lekha|swara|sunhi|yuna|jimin|seoyeon|soonbok|yujin|heami/,
+  m: /\bmale|männlich|conrad|killian|florian|stefan|markus|yannick|hans|ryan|thomas|daniel|oliver|george|arthur|alfie|david|mark\b|guy|sagar|rishi|madhur|injoon|hyunsu|bongjin|gookmin|minsu/,
 };
-const NATIVE_LOCALE = { de: "de-de", en: "en-gb", ne: "ne-np" };
+const NATIVE_LOCALE = { de: "de-de", en: "en-gb", ne: "ne-np", ko: "ko-kr" };
 
 export function voiceGender(name) {
   const n = (name || "").toLowerCase();
