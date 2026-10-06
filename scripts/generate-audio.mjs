@@ -111,7 +111,9 @@ async function main() {
   }), 4);
 
   // Index for the app, and removal of audio for deleted content.
-  const index = { generated: new Date().toISOString(), voices: VOICES, files: {} };
+  const label = (v) => v.replace(/^[a-z]{2}-[A-Z]{2}-/, "").replace(/(Multilingual)?Neural$/, "");
+  const index = { generated: new Date().toISOString(), engine: "azure", voices: VOICES,
+    labels: Object.fromEntries(Object.entries(VOICES).map(([k, v]) => [k, label(v)])), files: {} };
   for (const slot of Object.keys(VOICES)) {
     const [lang] = slot.split("-");
     const keys = new Set(jobsFor(lang).map((j) => j.key));
@@ -125,6 +127,8 @@ async function main() {
   }
   writeFileSync(`${OUT}/index.json`, JSON.stringify(index) + "\n");
   writeFileSync(hashesPath, JSON.stringify(hashes, null, 1) + "\n");
+  writeFileSync(`${OUT}/CREDITS.md`, "# Voice credits\n\nBuilt-in audio is generated with Microsoft Azure AI Speech (neural text-to-speech):\n\n" +
+    Object.entries(VOICES).map(([k, v]) => `- ${k}: ${v}`).join("\n") + "\n");
   console.log(`Done: ${done} new files. Index written.`);
 }
 
