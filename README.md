@@ -1,6 +1,6 @@
 # Bhasha · भाषा
 
-Learn **German, English and Nepali** in any direction, with native-speaker audio (female and male), spaced repetition, pronunciation practice, travel phrases and a progress dashboard. The interface is available in English, German and Nepali, independent of the language you learn.
+Learn **German, English, Nepali and Korean** in any direction, with native-speaker audio (female and male), spaced repetition, pronunciation practice, travel phrases and a progress dashboard. The interface is available in English, German, Nepali and Korean, independent of the language you learn.
 
 One web codebase ships everywhere:
 
@@ -40,6 +40,7 @@ Every package (web, Android, iOS, desktop) contains audio for every word, phrase
 | German | Katja | Conrad |
 | English (UK) | Sonia | Ryan |
 | Nepali | Hemkala | Sagar |
+| Korean | SunHi | InJoon |
 
 Generated with **Azure Neural TTS** (repository secrets `AZURE_SPEECH_KEY`, `AZURE_SPEECH_REGION`). Without those secrets the workflow falls back to **Piper** (open source): Kerstin/Thorsten, Cori/Alan, Nepali female/Chitwan.
 
