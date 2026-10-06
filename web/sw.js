@@ -1,11 +1,11 @@
 // Bhasha service worker: app shell precached; audio cached on first play (or all at once via "download audio").
-const VERSION = "1.0.2";
+const VERSION = "1.0.3";
 const SHELL = `bhasha-shell-${VERSION}`;
 const AUDIO = "bhasha-audio-v1";
 const SHELL_FILES = [
   "./", "index.html", "manifest.webmanifest", "css/app.css",
   "js/app.js", "js/core.js", "js/content.js", "js/i18n.js",
-  "icons/icon-64.png", "icons/icon-192.png", "icons/icon-512.png", "icons/favicon.png",
+  "icons/icon-64.png", "icons/icon-192.png", "icons/icon-512.png", "icons/favicon.png", "icons/team-nepal-solutions.png",
   "audio/index.json",
 ];
 

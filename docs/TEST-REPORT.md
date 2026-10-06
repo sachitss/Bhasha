@@ -1,4 +1,4 @@
-# Test report – v1.0.2
+# Test report – v1.0.3
 
 Date: 2026-10-06. Status legend: ✅ pass · ⚠️ needs action or known limitation. Release v1.0.0 built all platforms on the first run.
 
@@ -20,6 +20,7 @@ Date: 2026-10-06. Status legend: ✅ pass · ⚠️ needs action or known limita
 | Unit: built-in audio covers all 145 texts × 6 voices (870 files) | ✅ | – | – | – | – |
 | Audio check: no silent files; word length 0.8–1.0 s median in every voice | ✅ | – | – | – | – |
 | Azure audio: 870 clips, Katja/Conrad, Sonia/Ryan, Hemkala/Sagar | ✅ | Clips padded with ~1.4 s silence | Medium (wrong reference length, delayed playback) | Trim + loudness normalisation; CI now requires ffmpeg | ✅ word median 0.8–1.0 s |
+| Browser: powered-by footer on all 6 pages, logo aspect ratio within 2 % of the original, right-aligned, light/dark | ✅ | – | – | – | – |
 | Browser: real audio plays for all six voices; voice label follows Female/Male | ✅ | – | – | – | – |
 | Android device (Samsung S23 Ultra, v1.0.0): no speech, "no voice installed" | ✅ fixed | Android web view has no speech synthesis | High | Audio bundled in package + native speech engine backup | Pending device |
 | Android device (v1.0.0): header under the status bar | ✅ fixed | Edge-to-edge layout on Android 15 | Medium | Capacitor margin adjustment, themed system bars | Pending device |

@@ -149,6 +149,13 @@ const known=item=>esc(item[P().known]);
 const listenBtns=(id,text)=>`<div class="row"><button class="btn sm" data-a="say" data-id="${id}">${ic("play")}${t("listen")}</button><button class="btn sm" data-a="say" data-id="${id}" data-rate="0.6">${ic("slow")}${t("slow")}</button>${text?"":""}</div>`;
 function favBtn(id){const on=D.favs.includes(id);return `<button class="btn sm" data-a="fav" data-id="${id}" aria-pressed="${on}">${ic("star")}${on?t("saved"):t("save")}</button>`}
 
+/* ---------- Powered-by footer (lower right, every page) ---------- */
+function poweredBy(){return `<footer class="powered" aria-label="${t("poweredBy")}">
+  <span class="pb-label">${t("poweredBy")}</span>
+  <span class="pb-logo"><img src="icons/team-nepal-solutions.png" alt="Team Nepal Solutions" width="377" height="159" loading="lazy" decoding="async"></span>
+  <span class="pb-meta">© Ing.-Büro Sachit Shrestha · <a href="mailto:support@medtec24.com">support@medtec24.com</a></span>
+</footer>`}
+
 /* ---------- Views ---------- */
 let route="home", ui={filter:"all",q:"",sit:"all",speakId:null,resetArm:false,sess:null};
 function render(){
@@ -157,7 +164,7 @@ function render(){
   document.getElementById("tabs").innerHTML=tabs.map(r=>`<button class="tab" data-a="go" data-r="${r}" ${route===r||(route==="session"&&r==="learn")?'aria-current="page"':""}>${ic(r)}<span>${t(r)}</span></button>`).join("");
   document.getElementById("pairBtn").innerHTML=`<span>${t("lang_"+P().known)} → ${t("lang_"+P().target)}</span><span class="av">${esc((P().name||"·").slice(0,1).toUpperCase())}</span>`;
   const m=document.getElementById("main");
-  m.innerHTML=({home:vHome,learn:vLearn,session:vSession,words:vWords,speak:vSpeak,travel:vTravel,progress:vProgress})[route]();
+  m.innerHTML=({home:vHome,learn:vLearn,session:vSession,words:vWords,speak:vSpeak,travel:vTravel,progress:vProgress})[route]()+poweredBy();
   afterRender();
 }
 function afterRender(){document.querySelectorAll("canvas.wave").forEach(c=>{const h=(REC.hist[c.dataset.id]||[])[0]; if(h&&h.an)drawWave(c,h.an.env,h.an.exp)})}

@@ -77,3 +77,7 @@ docs/                architecture, release, privacy, test report
 - [Release guide](docs/RELEASE.md)
 - [Privacy](docs/PRIVACY.md)
 - [Test report](docs/TEST-REPORT.md)
+
+---
+
+Powered by **Team Nepal Solutions** · © Ing.-Büro Sachit Shrestha · support@medtec24.com

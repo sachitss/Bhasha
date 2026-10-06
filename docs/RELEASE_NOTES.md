@@ -1,8 +1,7 @@
-Bhasha 1.0.2 – German · English · Nepali
+Bhasha 1.0.3 – German · English · Nepali
 
-- Native Microsoft neural voices built into every package, female and male:
-  German Katja / Conrad · English Sonia / Ryan · Nepali Hemkala / Sagar
-- Clips trimmed and volume-matched, so playback starts immediately and pronunciation feedback compares against the real word length
-- Includes all 1.0.1 fixes (speech on Android without installed voices, status-bar layout)
+- "Powered by Team Nepal Solutions" branding in the lower right of every page, logo at its original proportions
+- © Ing.-Büro Sachit Shrestha · support@medtec24.com
+- Includes everything from 1.0.2: native voices Katja/Conrad, Sonia/Ryan, Hemkala/Sagar built into every package
 
 Installers: see the files below. Unsigned builds show a security prompt on first launch; see docs/RELEASE.md.

@@ -121,3 +121,23 @@ test("built-in audio files play in every language and voice", async ({ page }) =
   await page.locator('[data-a="setp"][data-k="gender"][data-v="m"]').click();
   await expect(page.getByText(/Built-in voice: Conrad/)).toBeVisible();
 });
+
+test("powered-by branding: logo undistorted, lower right, on every page", async ({ page }) => {
+  await page.goto("/");
+  for (const name of ["Home", "Learn", "Words", "Speak", "Travel", "Progress"]) {
+    await page.getByRole("button", { name, exact: true }).click();
+    const footer = page.locator("footer.powered");
+    await expect(footer).toContainText("© Ing.-Büro Sachit Shrestha");
+    await expect(footer.locator('a[href="mailto:support@medtec24.com"]')).toBeVisible();
+    const img = footer.locator("img");
+    await img.scrollIntoViewIfNeeded();
+    await expect.poll(() => img.evaluate((el) => el.complete && el.naturalWidth)).toBeGreaterThan(0);
+    const r = await img.evaluate((el) => {
+      const b = el.getBoundingClientRect();
+      const m = document.querySelector("main").getBoundingClientRect(); const pad = parseFloat(getComputedStyle(document.querySelector("main")).paddingRight);
+      return { rendered: b.width / b.height, natural: el.naturalWidth / el.naturalHeight, right: b.right, vw: m.right - pad };
+    });
+    expect(Math.abs(r.rendered - r.natural) / r.natural).toBeLessThan(0.02);
+    expect(r.vw - r.right).toBeLessThan(14); // right-aligned to the content column (logo card padding)
+  }
+});
