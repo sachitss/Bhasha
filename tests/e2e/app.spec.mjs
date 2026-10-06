@@ -101,3 +101,23 @@ test("recording falls back to file upload and analyses it", async ({ page, brows
   await expect(page.locator(".score")).toBeVisible();
   await expect(page.getByText(/Practice estimate/)).toBeVisible();
 });
+
+test("built-in audio files play in every language and voice", async ({ page }) => {
+  await page.goto("/");
+  const result = await page.evaluate(async () => {
+    const out = {};
+    for (const slot of ["de-f", "de-m", "en-f", "en-m", "ne-f", "ne-m"]) {
+      out[slot] = await new Promise((res) => {
+        const a = new Audio(`audio/${slot}/g1.mp3`);
+        a.onloadedmetadata = () => res(a.duration);
+        a.onerror = () => res(-1);
+      });
+    }
+    return out;
+  });
+  for (const [slot, d] of Object.entries(result)) expect(d, slot).toBeGreaterThan(0.3);
+  await page.locator("#pairBtn").click();
+  await expect(page.getByText(/Built-in voice: Kerstin/)).toBeVisible();
+  await page.locator('[data-a="setp"][data-k="gender"][data-v="m"]').click();
+  await expect(page.getByText(/Built-in voice: Thorsten/)).toBeVisible();
+});

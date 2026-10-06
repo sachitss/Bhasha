@@ -1,4 +1,4 @@
-# Test report – v1.0.0
+# Test report – v1.0.1
 
 Date: 2026-10-06. Status legend: ✅ pass · ⚠️ needs action or known limitation. Release v1.0.0 built all platforms on the first run.
 
@@ -17,6 +17,11 @@ Date: 2026-10-06. Status legend: ✅ pass · ⚠️ needs action or known limita
 | Browser: UI language switch (ne, de) independent of target language | ✅ | – | – | – | – |
 | Browser: native audio file chosen by gender (`audio/de-m/g1.mp3`) | ✅ | – | – | – | – |
 | Browser: every tab without horizontal overflow; trip course starts | ✅ | – | – | – | – |
+| Unit: built-in audio covers all 145 texts × 6 voices (870 files) | ✅ | – | – | – | – |
+| Audio check: no silent files; word length 0.8–1.0 s median in every voice | ✅ | – | – | – | – |
+| Browser: real audio plays for all six voices; voice label follows Female/Male | ✅ | – | – | – | – |
+| Android device (Samsung S23 Ultra, v1.0.0): no speech, "no voice installed" | ✅ fixed | Android web view has no speech synthesis | High | Audio bundled in package + native speech engine backup | Pending device |
+| Android device (v1.0.0): header under the status bar | ✅ fixed | Edge-to-edge layout on Android 15 | Medium | Capacitor margin adjustment, themed system bars | Pending device |
 | Browser: microphone denied → file upload → analysis and score shown | ✅ | – | – | – | – |
 | Desktop: Linux release build (.deb) and launch on virtual display | ✅ | – | – | – | – |
 | Desktop: Windows (MSI, EXE) and macOS universal (DMG) builds in CI | ✅ | – | – | – | – |
@@ -36,7 +41,7 @@ Date: 2026-10-06. Status legend: ✅ pass · ⚠️ needs action or known limita
 
 ## Known limitations (v1)
 
-- ⚠️ Native audio appears after the Azure secrets are added and the audio workflow has run; until then device voices are used.
+- ⚠️ Built-in voices use Piper (open source). Azure neural voices (Katja/Conrad, Sonia/Ryan, Hemkala/Sagar) replace them once an Azure subscription and key are added.
 - ⚠️ Pronunciation feedback is an educational estimate (tempo, volume, pauses), not phoneme-level assessment.
 - ⚠️ No accounts or cross-device sync; reminders are not included in v1 (need native notifications or a server).
 - ⚠️ Builds are unsigned until store accounts and signing secrets are set up (see RELEASE.md).

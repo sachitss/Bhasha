@@ -31,21 +31,20 @@ npm test             # unit tests
 npm run test:e2e     # browser tests (phone + desktop)
 ```
 
-## Native voices (one-time setup)
+## Built-in voices
 
-Audio is generated with Azure Neural TTS and committed to `web/audio/`, so the app plays the same native voices on every device and offline:
+Every package (web, Android, iOS, desktop) contains audio for every word, phrase and example sentence in German, English and Nepali, female and male, so pronunciation works offline and on devices without any installed voices. The **Generate native audio** workflow creates it:
 
-| | Female | Male |
-|---|---|---|
-| German | de-DE-Katja | de-DE-Conrad |
-| English | en-GB-Sonia | en-GB-Ryan |
-| Nepali | ne-NP-Hemkala | ne-NP-Sagar |
+| | Female | Male | Engine |
+|---|---|---|---|
+| German | Kerstin | Thorsten | Piper (default) |
+| English (UK) | Cori | Alan | Piper (default) |
+| Nepali | Nepali female (Google dataset) | Chitwan | Piper (default) |
+| all three | Katja / Sonia / Hemkala | Conrad / Ryan / Sagar | Azure Neural TTS (optional, higher quality) |
 
-1. Create a free Azure **Speech** resource (the free tier covers this content many times over).
-2. In this repository: **Settings → Secrets and variables → Actions** add `AZURE_SPEECH_KEY` and `AZURE_SPEECH_REGION` (e.g. `westeurope`).
-3. **Actions → Generate native audio → Run workflow.** It commits the audio and redeploys the web app.
+Piper needs no account. To switch to Azure: add repository secrets `AZURE_SPEECH_KEY` and `AZURE_SPEECH_REGION` (e.g. `westeurope`), then run **Actions → Generate native audio** with "Regenerate all files" ticked. Voice credits and licences: [web/audio/CREDITS.md](web/audio/CREDITS.md).
 
-After that, audio regenerates automatically for any changed words when `web/js/content.js` changes. Until audio exists, the app falls back to the best native voice on the device (in Microsoft Edge: Katja/Conrad, Sonia/Ryan, Hemkala/Sagar).
+When a file is missing, the app falls back to the device's speech engine (Android/iOS through the native speech service, browsers through the Web Speech API).
 
 ## Release
 
