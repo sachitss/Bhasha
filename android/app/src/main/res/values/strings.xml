@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Bhasha</string>
+    <string name="title_activity_main">Bhasha</string>
+    <string name="package_name">com.sachitss.bhasha</string>
+    <string name="custom_url_scheme">com.sachitss.bhasha</string>
+</resources>

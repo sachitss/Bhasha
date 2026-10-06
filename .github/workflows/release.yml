@@ -1,0 +1,157 @@
+name: Release
+# Push a tag like v1.0.0 to build every platform and publish a GitHub release:
+#   web (zip), Android (APK), iOS (unsigned IPA + simulator build), Windows, macOS and Linux installers.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing tag to (re)build, e.g. v1.0.0
+        required: true
+permissions:
+  contents: write
+env:
+  TAG: ${{ inputs.tag || github.ref_name }}
+jobs:
+  test:
+    uses: ./.github/workflows/ci.yml
+
+  create-release:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - env: { GH_TOKEN: "${{ github.token }}" }
+        run: |
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --draft --title "Bhasha $TAG" --notes-file docs/RELEASE_NOTES.md
+
+  web:
+    needs: create-release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm version "${TAG#v}" --no-git-tag-version --allow-same-version && node scripts/stamp-version.mjs
+      - run: cd web && zip -qr "../Bhasha-${TAG}-web.zip" .
+      - env: { GH_TOKEN: "${{ github.token }}" }
+        run: gh release upload "$TAG" "Bhasha-${TAG}-web.zip" --clobber
+
+  android:
+    needs: create-release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 21 }
+      - run: npm ci
+      - run: npm version "${TAG#v}" --no-git-tag-version --allow-same-version && node scripts/stamp-version.mjs
+      - run: npx cap sync android
+      - name: Prepare signing key (optional)
+        env: { KEYSTORE_B64: "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" }
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.jks"
+            echo "BHASHA_KEYSTORE_FILE=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
+          fi
+      - name: Build
+        env:
+          BHASHA_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          BHASHA_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          BHASHA_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          cd android && chmod +x gradlew
+          ./gradlew --no-daemon assembleDebug assembleRelease bundleRelease
+      - name: Upload
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: |
+          mkdir -p out
+          # Debug-signed APK: installs on any Android phone (allow "install unknown apps").
+          cp android/app/build/outputs/apk/debug/app-debug.apk "out/Bhasha-${TAG}-android.apk"
+          if [ -n "$BHASHA_KEYSTORE_FILE" ]; then
+            cp android/app/build/outputs/apk/release/app-release.apk "out/Bhasha-${TAG}-android-release.apk"
+            cp android/app/build/outputs/bundle/release/app-release.aab "out/Bhasha-${TAG}-play-store.aab"
+          else
+            cp android/app/build/outputs/bundle/release/app-release.aab "out/Bhasha-${TAG}-play-store-unsigned.aab"
+          fi
+          gh release upload "$TAG" out/* --clobber
+
+  ios:
+    needs: create-release
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npm version "${TAG#v}" --no-git-tag-version --allow-same-version && node scripts/stamp-version.mjs
+      - run: npx cap sync ios
+      - name: Set version
+        run: |
+          cd ios/App
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${TAG#v}" App/Info.plist || true
+          agvtool new-version -all "${GITHUB_RUN_NUMBER}" || true
+      - name: Build (unsigned device build and simulator build)
+        run: |
+          cd ios/App
+          xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -sdk iphoneos \
+            -derivedDataPath build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build | tail -20
+          xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -sdk iphonesimulator \
+            -derivedDataPath build-sim CODE_SIGNING_ALLOWED=NO build | tail -5
+      - name: Package and upload
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: |
+          cd ios/App
+          mkdir -p Payload && cp -R build/Build/Products/Release-iphoneos/App.app Payload/
+          zip -qr "$GITHUB_WORKSPACE/Bhasha-${TAG}-ios-unsigned.ipa" Payload
+          (cd build-sim/Build/Products/Release-iphonesimulator && zip -qr "$GITHUB_WORKSPACE/Bhasha-${TAG}-ios-simulator.zip" App.app)
+          cd "$GITHUB_WORKSPACE"
+          gh release upload "$TAG" "Bhasha-${TAG}-ios-unsigned.ipa" "Bhasha-${TAG}-ios-simulator.zip" --clobber
+
+  desktop:
+    needs: create-release
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            args: ""
+          - os: macos-15
+            args: "--target universal-apple-darwin"
+          - os: ubuntu-22.04
+            args: ""
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ startsWith(matrix.os, 'macos') && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+      - uses: swatinem/rust-cache@v2
+        with: { workspaces: src-tauri }
+      - name: Linux build libraries
+        if: startsWith(matrix.os, 'ubuntu')
+        run: sudo apt-get update && sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+      - run: npm ci
+      - shell: bash
+        run: npm version "${TAG#v}" --no-git-tag-version --allow-same-version && node scripts/stamp-version.mjs
+      - run: npx tauri build ${{ matrix.args }}
+      - name: Upload installers
+        shell: bash
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: |
+          mkdir -p out
+          find src-tauri/target -path "*/bundle/*" -type f \( -name "*.msi" -o -name "*-setup.exe" -o -name "*.dmg" -o -name "*.deb" -o -name "*.rpm" -o -name "*.AppImage" \) -exec cp {} out/ \;
+          ls -la out
+          gh release upload "$TAG" out/* --clobber
+
+  publish:
+    needs: [web, android, ios, desktop]
+    if: always() && needs.web.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - env: { GH_TOKEN: "${{ github.token }}" }
+        run: gh release edit "$TAG" --draft=false

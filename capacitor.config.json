@@ -1,0 +1,7 @@
+{
+  "appId": "com.sachitss.bhasha",
+  "appName": "Bhasha",
+  "webDir": "web",
+  "android": { "allowMixedContent": false },
+  "ios": { "contentInset": "never", "limitsNavigationsToAppBoundDomains": false }
+}

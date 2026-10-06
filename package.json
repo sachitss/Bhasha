@@ -1,0 +1,32 @@
+{
+  "name": "bhasha",
+  "version": "1.0.0",
+  "description": "Bhasha – learn German, English and Nepali with native audio, spaced repetition and pronunciation practice.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "npx http-server web -p 5173 -c-1",
+    "test": "node --test tests/unit/*.test.mjs",
+    "test:e2e": "playwright test",
+    "audio": "node scripts/generate-audio.mjs",
+    "audio:dry": "node scripts/generate-audio.mjs --dry-run",
+    "fonts": "node scripts/copy-fonts.mjs",
+    "stamp": "node scripts/stamp-version.mjs",
+    "cap:sync": "npx cap sync",
+    "desktop:dev": "tauri dev",
+    "desktop:build": "tauri build"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/ios": "^7.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.0.0",
+    "@fontsource/martel": "^5.0.0",
+    "@fontsource/mukta": "^5.0.0",
+    "@playwright/test": "^1.48.0",
+    "@tauri-apps/cli": "^2.0.0",
+    "http-server": "^14.1.1"
+  }
+}

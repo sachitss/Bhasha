@@ -1,0 +1,20 @@
+{
+  "name": "Bhasha – German · English · Nepali",
+  "short_name": "Bhasha",
+  "description": "Learn German, English and Nepali with native audio, spaced repetition, pronunciation practice and travel phrases.",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#F3F4F9",
+  "theme_color": "#2B3A8C",
+  "lang": "en",
+  "categories": ["education"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
