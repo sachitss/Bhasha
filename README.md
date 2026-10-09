@@ -1,6 +1,6 @@
 # Bhasha · भाषा
 
-Learn **German, English, Nepali and Korean** in any direction, with native-speaker audio (female and male), spaced repetition, pronunciation practice, travel phrases and a progress dashboard. The interface is available in English, German, Nepali and Korean, independent of the language you learn.
+Learn **German, English, Nepali, Korean and Spanish** in any direction, with native-speaker audio (female and male), spaced repetition, pronunciation practice, travel phrases and a progress dashboard. The interface is available in English, German, Nepali, Korean and Spanish, independent of the language you learn.
 
 One web codebase ships everywhere:
 
@@ -13,10 +13,14 @@ One web codebase ships everywhere:
 
 ## Features
 
-- **Daily plan** sized to 10–60 minutes and your focus (vocabulary, listening, pronunciation, words in context). It adapts: fewer new words when accuracy drops or reviews pile up.
+- **First-run questions**: which language you speak, which you learn, your level, which skill to focus on and how much time you have.
+- **Daily plan** sized to 10–60 minutes and your focus across the **four skills** – listening, reading, speaking, writing – with vocabulary as the core. It adapts: fewer new words when accuracy drops or reviews pile up. Progress shows accuracy per skill.
 - **Spaced repetition** with five visible states (New, Learning, Familiar, Mastered, Needs review). Every card says why it is shown.
-- **Task types**: study cards, multiple choice, recall, typing, listen-and-identify, fill-in-the-blank, pronunciation.
-- **Native audio** for every word, phrase and example sentence in German (de-DE), English (en-GB) and Nepali (ne-NP), with a **Female / Male** voice setting. Slow playback keeps the pitch natural.
+- **Exercises** (active recall first): study cards, multiple choice, recall, typing, dictation, listen-and-identify, matching pairs, fill-in-the-blank, word order, sentence translation, writing your own sentence, graded reading texts with tap-to-translate and questions, pronunciation.
+- **Learn in context and read widely**: every word comes with an example sentence; six reading texts from beginner to advanced.
+- **Active notebook**: meaning, your own sentence, synonyms and notes for any word; add your own words (they join the review cycle); dictionary lookup (Oxford Learner's Dictionaries for English, Duden, RAE, Naver); CSV export.
+- **Passive exposure**: Android home-screen/lock-screen widget with a changing word, quiet lock-screen word notifications (Android/iOS, 3–10 a day in your chosen hours) and Glance mode, a full-screen slideshow on any device.
+- **Native audio** for every word, phrase and example sentence in German (de-DE), English (en-GB), Nepali (ne-NP), Korean (ko-KR) and Spanish (es-ES), with a **Female / Male** voice setting. Slow playback keeps the pitch natural.
 - **Pronunciation practice**: listen, record, play back, compare with the reference length; tempo, volume and pause feedback, labelled as a practice estimate. Recordings never leave the device.
 - **Travel pack** with situations (airport, hotel, restaurant, emergency…) and a "Learn before my trip" course.
 - Word/Phrase of the day, saved items, search, progress dashboard, pause and resume, data export.
@@ -33,7 +37,7 @@ npm run test:e2e     # browser tests (phone + desktop)
 
 ## Built-in voices
 
-Every package (web, Android, iOS, desktop) contains audio for every word, phrase and example sentence in German, English and Nepali, female and male, so pronunciation works offline and on devices without any installed voices. The **Generate native audio** workflow creates it:
+Every package (web, Android, iOS, desktop) contains audio for every word, phrase, example sentence and reading text in all five languages, female and male, so pronunciation works offline and on devices without any installed voices. The **Generate native audio** workflow creates it:
 
 | | Female | Male |
 |---|---|---|
@@ -41,6 +45,7 @@ Every package (web, Android, iOS, desktop) contains audio for every word, phrase
 | English (UK) | Sonia | Ryan |
 | Nepali | Hemkala | Sagar |
 | Korean | SunHi | InJoon |
+| Spanish (Spain) | Elvira | Alvaro |
 
 Generated with **Azure Neural TTS** (repository secrets `AZURE_SPEECH_KEY`, `AZURE_SPEECH_REGION`). Without those secrets the workflow falls back to **Piper** (open source): Kerstin/Thorsten, Cori/Alan, Nepali female/Chitwan.
 

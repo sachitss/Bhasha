@@ -1,6 +1,6 @@
-# Test report – v1.1.0
+# Test report – v1.2.0
 
-Date: 2026-10-06. Status legend: ✅ pass · ⚠️ needs action or known limitation. Release v1.0.0 built all platforms on the first run.
+Date: 2026-10-10. Status legend: ✅ pass · ⚠️ needs action or known limitation. Release v1.0.0 built all platforms on the first run.
 
 ## Automated
 
@@ -28,6 +28,20 @@ Date: 2026-10-06. Status legend: ✅ pass · ⚠️ needs action or known limita
 | Android device (Samsung S23 Ultra, v1.0.0): no speech, "no voice installed" | ✅ fixed | Android web view has no speech synthesis | High | Audio bundled in package + native speech engine backup | Pending device |
 | Android device (v1.0.0): header under the status bar | ✅ fixed | Edge-to-edge layout on Android 15 | Medium | Capacitor margin adjustment, themed system bars | Pending device |
 | Browser: microphone denied → file upload → analysis and score shown | ✅ | – | – | – | – |
+| Unit: Spanish and expanded content complete in 5 languages (227 items, 172 words, 40 travel, 15 phrases), unique ids | ✅ | – | – | – | – |
+| Unit: 6 reading texts aligned sentence by sentence in 5 languages; questions answerable | ✅ | – | – | – | – |
+| Unit: every UI string in en/de/ne/ko/es (283 keys) | ✅ | – | – | – | – |
+| Unit: skill focus – old "context" moves to reading, presets sum to 100, task types follow focus and available data | ✅ | – | – | – | – |
+| Unit: matching and reading tasks added only when due words / reading focus exist; word order never starts solved | ✅ | – | – | – | – |
+| Unit: answer check accepts missing articles/accents and romanisation (Nepali, Korean) | ✅ | – | – | – | – |
+| Unit: passive deck (due first, mastered left out) and lock-screen times inside the chosen hours | ✅ | – | – | – | – |
+| Browser: onboarding (languages, level, focus, time) sets profile; not shown again | ✅ | – | – | – | – |
+| Browser: Spanish interface + Spanish learning session end to end | ✅ | – | – | – | – |
+| Browser: review session with match, order, write, translate, fill and reading; per-skill progress card | ✅ | Duplicate isNative declaration broke the app | High | Removed old declaration | ✅ |
+| Browser: reading text, tap-to-translate, questions; notebook notes, own word, CSV export; Glance mode | ✅ | Dictionary link rendered as underlined link | Low | Link styled as button | ✅ |
+| Android: widget provider, widget plugin, notifications plugin compile in CI (assembleRelease) | ✅ | – | – | – | – |
+| Android/iOS lock-screen notifications and widget on a real device | ⚠️ | Not testable here | – | Check on the S23 Ultra after install | Pending device |
+
 | Desktop: Linux release build (.deb) and launch on virtual display | ✅ | – | – | – | – |
 | Desktop: Windows (MSI, EXE) and macOS universal (DMG) builds in CI | ✅ | – | – | – | – |
 | Android APK and AAB build in CI (Java 21, SDK 35) | ✅ | – | – | – | – |
