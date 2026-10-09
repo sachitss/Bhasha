@@ -10,3 +10,5 @@ Built-in audio is generated with Microsoft Azure AI Speech (neural text-to-speec
 - ne-m: ne-NP-SagarNeural
 - ko-f: ko-KR-SunHiNeural
 - ko-m: ko-KR-InJoonNeural
+- es-f: es-ES-ElviraNeural
+- es-m: es-ES-AlvaroNeural
