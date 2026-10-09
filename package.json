@@ -1,7 +1,7 @@
 {
   "name": "bhasha",
-  "version": "1.1.0",
-  "description": "Bhasha – learn German, English and Nepali with native audio, spaced repetition and pronunciation practice.",
+  "version": "1.2.0",
+  "description": "Bhasha – learn German, English, Nepali, Korean and Spanish with native audio, spaced repetition and pronunciation practice.",
   "private": true,
   "type": "module",
   "scripts": {
@@ -20,7 +20,8 @@
     "@capacitor-community/text-to-speech": "^6.1.0",
     "@capacitor/android": "^7.0.0",
     "@capacitor/core": "^7.0.0",
-    "@capacitor/ios": "^7.0.0"
+    "@capacitor/ios": "^7.0.0",
+    "@capacitor/local-notifications": "^7.0.7"
   },
   "devDependencies": {
     "@capacitor/cli": "^7.0.0",

@@ -16,7 +16,13 @@ jobs:
         with: { distribution: temurin, java-version: 21 }
       - run: npm ci
       - run: npx cap sync android
-      - run: cd android && chmod +x gradlew && ./gradlew --no-daemon assembleRelease
+      - name: Build release APK
+        run: |
+          cd android && chmod +x gradlew
+          set -o pipefail
+          ./gradlew --no-daemon assembleRelease 2>&1 | tee ../gradle.log || {
+            grep -E "error:|^e: |What went wrong|AAPT|> " ../gradle.log | head -40 | while IFS= read -r l; do echo "::error::$l"; done
+            exit 1; }
       - env: { GH_TOKEN: "${{ github.token }}" }
         run: |
           cp android/app/build/outputs/apk/release/app-release-unsigned.apk bhasha-release-unsigned.apk

@@ -1,6 +1,6 @@
 name: Generate native audio
 # Builds the audio files bundled in every package (web, Android, iOS, desktop):
-# German, English and Nepali, female and male, for every word, phrase and example sentence.
+# German, English, Nepali, Korean and Spanish, female and male, for every word, phrase, example sentence and reading text.
 # Engine: Azure Neural TTS when the AZURE_SPEECH_KEY secret is set, otherwise Piper (open source, no account).
 on:
   workflow_dispatch:
@@ -42,6 +42,7 @@ jobs:
           python3 scripts/generate-audio-piper.py ${{ inputs.force && '--force' || '' }}
           du -sh web/audio
       - name: Commit audio
+        if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

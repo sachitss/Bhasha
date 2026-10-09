@@ -1,4 +1,4 @@
-// Learning content: words, travel phrases and phrases of the day in German, English, Nepali and Korean.
+// Learning content: words, travel phrases, phrases of the day and reading texts in German, English, Nepali, Korean and Spanish.
 // Word rows: [id, topic, level(b|i|a), de, en, ne, romanised ne, example de, example en, example ne, note?]
 // Edit here, then run `npm run audio` (or the "Generate audio" workflow) to refresh native audio.
 export const RAW = [
@@ -189,18 +189,290 @@ export const KO = {
   x22:["만나서 반갑습니다!","mannaseo bangapseumnida!"],
 };
 
-// Romanisation per language: rom.ne (Nepali) and rom.ko (Korean). Notes are per target language (notes.ne, notes.ko);
-// phrase usage notes (kind "phrase") apply to every language.
+// ---------- Spanish (Spain) for the original items: id → [word, example?, notes?] ----------
+const ES = {
+  g1:["Hola","Hola, ¿qué tal?"], g2:["Gracias","Gracias por la comida."], g3:["Por favor","Siéntese, por favor."],
+  g4:["Sí","Sí, con gusto."], g5:["No","No, gracias."], g6:["Perdón","Perdón, ¿dónde está la estación?"],
+  g7:["Adiós","¡Adiós y hasta pronto!"], g8:["Buenos días","Buenos días, señora Weber."],
+  n1:["uno","Un té, por favor."], n2:["dos","Dos cafés, por favor."], n3:["tres","Tengo tres hijos."],
+  n4:["cuatro","Son las cuatro."], n5:["cinco","Cinco minutos, por favor."], n6:["diez","Esto cuesta diez euros."],
+  f1:["la madre","A mi madre le gusta cocinar."], f2:["el padre","Mi padre trabaja en Katmandú."],
+  f3:["el hermano","Mi hermano es mayor que yo."], f4:["la hermana","Mi hermana está estudiando."],
+  f5:["la familia","Mi familia es grande."],
+  f6:["el niño","El niño está jugando.",{en:"niño is a boy or a child, niña a girl; los niños means children in general.",de:"niño = Junge/Kind, niña = Mädchen; los niños = Kinder allgemein.",es:"niño/niña; los niños se usa para hablar de niños en general.",ne:"niño = केटा/बच्चा, niña = केटी; los niños = बच्चाहरू।",ko:"niño는 남자아이·아이, niña는 여자아이, los niños는 아이들 전체를 뜻해요."}],
+  d1:["el agua","Un vaso de agua, por favor.",{en:"Agua is feminine but takes el in the singular because it starts with a stressed a: el agua fría, las aguas.",de:"Agua ist weiblich, steht im Singular aber mit el, weil es mit betontem a beginnt: el agua fría, las aguas.",es:"Agua es femenino, pero en singular lleva el porque empieza por a tónica: el agua fría, las aguas.",ne:"Agua स्त्रीलिङ्ग हो, तर एकवचनमा el लाग्छ: el agua fría, las aguas।",ko:"agua는 여성 명사지만 강세 있는 a로 시작해서 단수에서는 el을 써요: el agua fría, las aguas."}],
+  d2:["el arroz","Comemos arroz con lentejas."], d3:["el pan","El pan está fresco."], d4:["el té","¿Quieres té?"],
+  d5:["la leche","Café con leche, por favor."], d6:["la comida","La comida está rica."],
+  h1:["la casa","Nuestra casa es pequeña."], h2:["el libro","Estoy leyendo un libro."], h3:["la puerta","Cierra la puerta, por favor."],
+  v1:["comer","Comemos a las siete."], v2:["beber","Bebo mucha agua."], v3:["ir","Me voy a casa."], v4:["venir","¿De dónde vienes?"],
+  v5:["hablar","¿Habla usted inglés?",{en:"¿Habla usted…? is the polite form; with friends say ¿Hablas…?",de:"¿Habla usted…? ist die höfliche Form (Sie); unter Freunden: ¿Hablas…?",es:"¿Habla usted…? es la forma de cortesía; entre amigos: ¿Hablas…?",ne:"¿Habla usted…? आदरार्थी रूप हो; साथीहरूबीच ¿Hablas…? भनिन्छ।",ko:"¿Habla usted…?는 존댓말 형태예요. 친구끼리는 ¿Hablas…?라고 해요."}],
+  v6:["entender","No entiendo."],
+  t1:["hoy","Hoy hace calor."], t2:["mañana","¡Hasta mañana!"], t3:["ayer","Ayer estaba cansado."],
+  r1:["izquierda","Gire a la izquierda."], r2:["derecha","El hotel está a la derecha."], r3:["todo recto","Siga todo recto."],
+  s1:["caro","Es demasiado caro."], s2:["barato","La camisa es barata."], s3:["¿Cuánto?","¿Cuánto cuesta esto?"],
+  w1:["el trabajo","Hoy tengo mucho trabajo."], w2:["el colega","Mi colega me ayuda."], w3:["la reunión","La reunión empieza a las diez."],
+  w4:["el mensaje","Te envío un mensaje."], w5:["la cuenta","La cuenta, por favor."], w6:["puntual","Sé puntual, por favor."],
+  w7:["la experiencia","Ella tiene mucha experiencia."], w8:["la oportunidad","Es una buena oportunidad."], w9:["recordar","Te recuerdo."],
+  a1:["la responsabilidad","Él asume la responsabilidad."], a2:["el reto","Es un gran reto."], a3:["el requisito","Saber alemán es un requisito."],
+  a4:["el acuerdo","Llegamos a un acuerdo."], a5:["el desarrollo","El desarrollo dura dos años."], a6:["la sostenibilidad","La sostenibilidad es importante para nosotros."],
+  p1:["Cruzo los dedos por ti."], p2:["Todo va sobre ruedas."], p3:["Me suena a chino."], p4:["No es asunto mío."], p5:["Por supuesto."],
+  x1:["¿Dónde está el mostrador de facturación?"], x2:["Mi maleta no ha llegado."], x3:["Estoy aquí de turista."], x4:["Tengo una reserva."],
+  x5:["¿A qué hora es el desayuno?"], x6:["La carta, por favor."], x7:["Soy vegetariano."], x8:["No muy picante, por favor."],
+  x9:["¿Cuándo sale el próximo autobús?"], x10:["Lléveme a esta dirección, por favor."], x11:["Un billete para Pokhara, por favor."],
+  x12:["¿Dónde está el baño?"], x13:["¿Está lejos de aquí?"], x14:["¿Puedo pagar con tarjeta?"], x15:["¿Me hace un descuento?"],
+  x16:["¡Socorro!"], x17:["¡Llame a una ambulancia!"], x18:["Necesito un médico."], x19:["He perdido mi pasaporte."],
+  x20:["¿Hay wifi aquí?"], x21:["Me llamo Anna."], x22:["¡Mucho gusto!"],
+};
+
+// Usage notes of the original phrases for the Korean and Spanish interface
+const PHR_NOTES_EXTRA = {
+  p1:{ko:"시험이나 면접 전에 행운을 빌어 줄 때 써요.",es:"Para desear suerte antes de un examen o una entrevista."},
+  p2:{ko:"편한 말투예요. 모든 게 잘되고 있다고 안심시킬 때 써요.",es:"Coloquial. Para decir que todo va bien."},
+  p3:{ko:"편한 말투예요. 들은 말을 전혀 이해하지 못할 때 써요.",es:"Informal. Cuando no entiendes nada de lo que se dice."},
+  p4:{ko:"편한 말투예요. 자기 책임이 아닐 때 써요.",es:"Informal. Cuando algo no es tu responsabilidad."},
+  p5:{ko:"강한 동의예요. 격식·비격식 모두 쓸 수 있어요.",es:"Acuerdo total. Sirve en contextos formales e informales."},
+};
+
+// ---------- Added vocabulary (v1.2) ----------
+// [id, topic, level, de, de example, en, en example, es, es example, ne, ne romanised, ne example, ko, ko romanised, ko example, notes?]
+// notes: { <target language>: { <interface language>: text } }
+const MORE = [
+["c1","colors","b","rot","Das Auto ist rot.","red","The car is red.","rojo","El coche es rojo.","रातो","rāto","गाडी रातो छ।","빨간색","ppalgansaek","자동차가 빨간색이에요."],
+["c2","colors","b","blau","Der Himmel ist blau.","blue","The sky is blue.","azul","El cielo es azul.","निलो","nilo","आकाश निलो छ।","파란색","paransaek","하늘이 파란색이에요."],
+["c3","colors","b","grün","Die Blätter sind grün.","green","The leaves are green.","verde","Las hojas son verdes.","हरियो","hariyo","पातहरू हरिया छन्।","초록색","choroksaek","나뭇잎이 초록색이에요."],
+["c4","colors","b","weiß","Der Schnee ist weiß.","white","The snow is white.","blanco","La nieve es blanca.","सेतो","seto","हिउँ सेतो छ।","흰색","huinsaek","눈이 흰색이에요."],
+["c5","colors","b","schwarz","Meine Katze ist schwarz.","black","My cat is black.","negro","Mi gato es negro.","कालो","kālo","मेरो बिरालो कालो छ।","검은색","geomeunsaek","제 고양이는 검은색이에요."],
+["c6","colors","b","gelb","Die Banane ist gelb.","yellow","The banana is yellow.","amarillo","El plátano es amarillo.","पहेँलो","pahẽlo","केरा पहेँलो छ।","노란색","noransaek","바나나는 노란색이에요."],
+["b1","body","b","der Kopf","Mein Kopf tut weh.","head","My head hurts.","la cabeza","Me duele la cabeza.","टाउको","ṭāuko","मेरो टाउको दुख्छ।","머리","meori","머리가 아파요."],
+["b2","body","b","die Hand","Wasch dir die Hände.","hand","Wash your hands.","la mano","Lávate las manos.","हात","hāt","हात धोऊ।","손","son","손을 씻으세요."],
+["b3","body","b","das Auge","Sie hat blaue Augen.","eye","She has blue eyes.","el ojo","Ella tiene los ojos azules.","आँखा","ā̃khā","उनका आँखा निला छन्।","눈","nun","그녀는 눈이 파래요.",{ko:{en:"눈 means both 'eye' and 'snow'; the context tells you which.",de:"눈 heißt sowohl „Auge“ als auch „Schnee“; der Zusammenhang entscheidet.",es:"눈 significa «ojo» y «nieve»; el contexto lo aclara.",ne:"눈 को अर्थ ‘आँखा’ र ‘हिउँ’ दुवै हुन्छ; सन्दर्भले छुट्याउँछ।",ko:"눈은 신체의 눈과 하늘에서 내리는 눈을 모두 뜻해요."}}],
+["b4","body","b","der Fuß","Mein Fuß ist kalt.","foot","My foot is cold.","el pie","Tengo el pie frío.","खुट्टा","khuṭṭā","मेरो खुट्टा चिसो छ।","발","bal","발이 차가워요."],
+["b5","body","b","der Mund","Öffnen Sie bitte den Mund.","mouth","Open your mouth, please.","la boca","Abra la boca, por favor.","मुख","mukh","कृपया मुख खोल्नुहोस्।","입","ip","입을 벌려 주세요."],
+["we1","weather","b","das Wetter","Wie ist das Wetter heute?","weather","How is the weather today?","el tiempo","¿Qué tiempo hace hoy?","मौसम","mausam","आज मौसम कस्तो छ?","날씨","nalssi","오늘 날씨가 어때요?"],
+["we2","weather","b","der Regen","Morgen gibt es Regen.","rain","There will be rain tomorrow.","la lluvia","Mañana habrá lluvia.","वर्षा","barsā","भोलि वर्षा हुनेछ।","비","bi","내일 비가 올 거예요."],
+["we3","weather","b","die Sonne","Die Sonne scheint.","sun","The sun is shining.","el sol","Brilla el sol.","घाम","ghām","घाम लागेको छ।","해","hae","해가 떴어요."],
+["we4","weather","b","kalt","Im Winter ist es kalt.","cold","It is cold in winter.","frío","En invierno hace frío.","जाडो","jāḍo","हिउँदमा जाडो हुन्छ।","춥다","chupda","겨울에는 추워요."],
+["we5","weather","b","heiß","Der Sommer ist heiß.","hot","The summer is hot.","caluroso","El verano es caluroso.","गर्मी","garmī","गर्मीमा धेरै गर्मी हुन्छ।","덥다","deopda","여름은 더워요."],
+["tm1","time","b","die Woche","Nächste Woche habe ich Urlaub.","week","I have a holiday next week.","la semana","La próxima semana tengo vacaciones.","हप्ता","haptā","अर्को हप्ता मेरो छुट्टी छ।","주","ju","다음 주에 휴가예요."],
+["tm2","time","b","der Tag","Einen schönen Tag!","day","Have a nice day!","el día","¡Que tengas un buen día!","दिन","din","तपाईंको दिन शुभ रहोस्!","하루","haru","좋은 하루 보내세요!"],
+["tm3","time","b","der Monat","Dieser Monat hat dreißig Tage.","month","This month has thirty days.","el mes","Este mes tiene treinta días.","महिना","mahinā","यो महिनामा तीस दिन छन्।","달","dal","이번 달은 삼십 일이에요."],
+["tm4","time","b","das Jahr","Ein Jahr hat zwölf Monate.","year","A year has twelve months.","el año","Un año tiene doce meses.","वर्ष","barsa","एक वर्षमा बाह्र महिना हुन्छन्।","년","nyeon","일 년은 열두 달이에요."],
+["tm5","time","b","der Morgen","Am Morgen trinke ich Kaffee.","morning","In the morning I drink coffee.","la mañana","Por la mañana bebo café.","बिहान","bihāna","बिहान म कफी पिउँछु।","아침","achim","아침에 커피를 마셔요."],
+["tm6","time","b","der Abend","Am Abend lese ich.","evening","In the evening I read.","la tarde","Por la tarde leo.","साँझ","sā̃jh","साँझ म पढ्छु।","저녁","jeonyeok","저녁에 책을 읽어요."],
+["tm7","time","b","jetzt","Ich habe jetzt Zeit.","now","I have time now.","ahora","Ahora tengo tiempo.","अहिले","ahile","अहिले मसँग समय छ।","지금","jigeum","지금 시간이 있어요."],
+["tr1","transport","b","das Auto","Wir fahren mit dem Auto.","car","We go by car.","el coche","Vamos en coche.","गाडी","gāḍī","हामी गाडीमा जान्छौँ।","자동차","jadongcha","우리는 자동차로 가요."],
+["tr2","transport","b","der Zug","Der Zug ist pünktlich.","train","The train is on time.","el tren","El tren llega puntual.","रेल","rel","रेल समयमै छ।","기차","gicha","기차가 제시간에 와요."],
+["tr3","transport","b","das Flugzeug","Das Flugzeug landet um acht.","plane","The plane lands at eight.","el avión","El avión aterriza a las ocho.","हवाईजहाज","havāījahāj","हवाईजहाज आठ बजे अवतरण गर्छ।","비행기","bihaenggi","비행기가 여덟 시에 착륙해요."],
+["tr4","transport","b","das Fahrrad","Ich fahre mit dem Fahrrad zur Arbeit.","bicycle","I go to work by bicycle.","la bicicleta","Voy al trabajo en bicicleta.","साइकल","sāikal","म साइकलमा काममा जान्छु।","자전거","jajeongeo","자전거로 출근해요."],
+["tr5","transport","b","der Bahnhof","Der Bahnhof ist in der Nähe.","station","The station is nearby.","la estación","La estación está cerca.","स्टेसन","stesan","स्टेसन नजिकै छ।","역","yeok","역이 가까워요."],
+["aj1","adjectives","b","groß","Das Zimmer ist groß.","big","The room is big.","grande","La habitación es grande.","ठूलो","ṭhūlo","कोठा ठूलो छ।","크다","keuda","방이 커요."],
+["aj2","adjectives","b","klein","Der Hund ist klein.","small","The dog is small.","pequeño","El perro es pequeño.","सानो","sāno","कुकुर सानो छ।","작다","jakda","강아지가 작아요."],
+["aj3","adjectives","b","gut","Das ist eine gute Idee.","good","That's a good idea.","bueno","Es una buena idea.","राम्रो","rāmro","त्यो राम्रो विचार हो।","좋다","jota","좋은 생각이에요."],
+["aj4","adjectives","b","neu","Ich habe ein neues Auto gekauft.","new","I bought a new car.","nuevo","Compré un coche nuevo.","नयाँ","nayā̃","मैले नयाँ गाडी किनेँ।","새","sae","새 차를 샀어요."],
+["aj5","adjectives","b","alt","Das Haus ist sehr alt.","old","The house is very old.","viejo","La casa es muy vieja.","पुरानो","purāno","घर धेरै पुरानो छ।","오래되다","oraedoeda","그 집은 아주 오래됐어요."],
+["aj6","adjectives","b","schön","Die Stadt ist schön.","beautiful","The city is beautiful.","bonito","La ciudad es bonita.","सुन्दर","sundar","सहर सुन्दर छ।","아름답다","areumdapda","도시가 아름다워요."],
+["aj7","adjectives","b","einfach","Die Aufgabe ist einfach.","easy","The task is easy.","fácil","La tarea es fácil.","सजिलो","sajilo","काम सजिलो छ।","쉽다","swipda","그 과제는 쉬워요."],
+["aj8","adjectives","b","schwierig","Deutsch ist nicht so schwierig.","difficult","German is not that difficult.","difícil","El alemán no es tan difícil.","गाह्रो","gāhro","जर्मन त्यति गाह्रो छैन।","어렵다","eoryeopda","독일어는 그렇게 어렵지 않아요."],
+["v7","verbs","b","sehen","Ich sehe die Berge.","to see","I see the mountains.","ver","Veo las montañas.","देख्नु","dekhnu","म हिमालहरू देख्छु।","보다","boda","산이 보여요."],
+["v8","verbs","b","kaufen","Ich kaufe Brot.","to buy","I'm buying bread.","comprar","Compro pan.","किन्नु","kinnu","म रोटी किन्छु।","사다","sada","빵을 사요."],
+["v9","verbs","b","lesen","Er liest die Zeitung.","to read","He reads the newspaper.","leer","Él lee el periódico.","पढ्नु","paḍhnu","उहाँ पत्रिका पढ्नुहुन्छ।","읽다","ikda","그는 신문을 읽어요."],
+["v10","verbs","b","schreiben","Ich schreibe einen Brief.","to write","I'm writing a letter.","escribir","Escribo una carta.","लेख्नु","lekhnu","म चिठी लेख्दैछु।","쓰다","sseuda","편지를 쓰고 있어요."],
+["v11","verbs","b","schlafen","Das Baby schläft.","to sleep","The baby is sleeping.","dormir","El bebé está durmiendo.","सुत्नु","sutnu","बच्चा सुतिरहेको छ।","자다","jada","아기가 자고 있어요."],
+["v12","verbs","b","arbeiten","Sie arbeitet in einem Krankenhaus.","to work","She works in a hospital.","trabajar","Ella trabaja en un hospital.","काम गर्नु","kām garnu","उहाँ अस्पतालमा काम गर्नुहुन्छ।","일하다","ilhada","그녀는 병원에서 일해요."],
+["v13","verbs","b","lernen","Ich lerne jeden Tag Deutsch.","to learn","I learn German every day.","aprender","Aprendo alemán todos los días.","सिक्नु","siknu","म हरेक दिन जर्मन सिक्छु।","배우다","baeuda","매일 독일어를 배워요."],
+["v14","verbs","b","helfen","Können Sie mir helfen?","to help","Can you help me?","ayudar","¿Puede ayudarme?","मद्दत गर्नु","maddat garnu","मलाई मद्दत गर्न सक्नुहुन्छ?","돕다","dopda","저를 도와주실 수 있어요?"],
+["v15","verbs","b","wissen","Ich weiß, wo das Hotel ist.","to know","I know where the hotel is.","saber","Sé dónde está el hotel.","थाहा हुनु","thāhā hunu","होटल कहाँ छ, मलाई थाहा छ।","알다","alda","호텔이 어디 있는지 알아요."],
+["v16","verbs","b","warten","Bitte warten Sie hier.","to wait","Please wait here.","esperar","Espere aquí, por favor.","पर्खनु","parkhanu","कृपया यहाँ पर्खनुहोस्।","기다리다","gidarida","여기서 기다려 주세요."],
+["v17","verbs","b","wohnen","Ich wohne in Berlin.","to live","I live in Berlin.","vivir","Vivo en Berlín.","बस्नु","basnu","म बर्लिनमा बस्छु।","살다","salda","저는 베를린에 살아요."],
+["v18","verbs","b","wollen","Ich will Nepali lernen.","to want","I want to learn Nepali.","querer","Quiero aprender nepalí.","चाहनु","chāhanu","म नेपाली सिक्न चाहन्छु।","원하다","wonhada","저는 네팔어를 배우고 싶어요."],
+["pl1","places","b","die Stadt","Kathmandu ist eine große Stadt.","city","Kathmandu is a big city.","la ciudad","Katmandú es una ciudad grande.","सहर","sahar","काठमाडौँ ठूलो सहर हो।","도시","dosi","카트만두는 큰 도시예요."],
+["pl2","places","b","der Markt","Wir gehen auf den Markt.","market","We're going to the market.","el mercado","Vamos al mercado.","बजार","bajār","हामी बजार जाँदैछौँ।","시장","sijang","우리는 시장에 가요."],
+["pl3","places","b","das Krankenhaus","Wo ist das Krankenhaus?","hospital","Where is the hospital?","el hospital","¿Dónde está el hospital?","अस्पताल","aspatāl","अस्पताल कहाँ छ?","병원","byeongwon","병원이 어디예요?"],
+["pl4","places","b","die Schule","Die Kinder gehen zur Schule.","school","The children go to school.","la escuela","Los niños van a la escuela.","विद्यालय","vidyālaya","बच्चाहरू विद्यालय जान्छन्।","학교","hakgyo","아이들이 학교에 가요."],
+["pl5","places","b","das Geschäft","Das Geschäft öffnet um neun.","shop","The shop opens at nine.","la tienda","La tienda abre a las nueve.","पसल","pasal","पसल नौ बजे खुल्छ।","가게","gage","가게는 아홉 시에 문을 열어요."],
+["pl6","places","b","die Bank","Die Bank ist heute geschlossen.","bank","The bank is closed today.","el banco","Hoy el banco está cerrado.","बैंक","baiṅk","आज बैंक बन्द छ।","은행","eunhaeng","오늘은 은행이 문을 닫아요."],
+["d7","food","b","das Obst","Ich esse gern Obst.","fruit","I like eating fruit.","la fruta","Me gusta comer fruta.","फलफूल","phalphūl","मलाई फलफूल खान मन पर्छ।","과일","gwail","저는 과일을 좋아해요."],
+["d8","food","b","das Gemüse","Das Gemüse ist frisch.","vegetables","The vegetables are fresh.","la verdura","La verdura está fresca.","तरकारी","tarkārī","तरकारी ताजा छ।","채소","chaeso","채소가 신선해요."],
+["d9","food","b","das Ei","Zum Frühstück esse ich ein Ei.","egg","I eat an egg for breakfast.","el huevo","Desayuno un huevo.","अण्डा","aṇḍā","बिहानको खाजामा म एउटा अण्डा खान्छु।","달걀","dalgyal","아침으로 달걀을 하나 먹어요."],
+["d10","food","b","der Kaffee","Der Kaffee ist heiß.","coffee","The coffee is hot.","el café","El café está caliente.","कफी","kaphī","कफी तातो छ।","커피","keopi","커피가 뜨거워요."],
+["d11","food","b","das Salz","Gib mir bitte das Salz.","salt","Please pass me the salt.","la sal","Pásame la sal, por favor.","नुन","nun","कृपया नुन दिनुहोस्।","소금","sogeum","소금 좀 주세요."],
+["d12","food","b","der Zucker","Tee ohne Zucker, bitte.","sugar","Tea without sugar, please.","el azúcar","Té sin azúcar, por favor.","चिनी","chinī","चिनी नहालेको चिया दिनुहोस्।","설탕","seoltang","차에 설탕은 넣지 마세요."],
+["d13","food","b","der Apfel","Der Apfel ist süß.","apple","The apple is sweet.","la manzana","La manzana es dulce.","स्याउ","syāu","स्याउ गुलियो छ।","사과","sagwa","사과가 달아요.",{ko:{en:"사과 also means 'apology'; 사과하다 = to apologise.",de:"사과 bedeutet auch „Entschuldigung“; 사과하다 = sich entschuldigen.",es:"사과 también significa «disculpa»; 사과하다 = disculparse.",ne:"사과 को अर्थ ‘माफी’ पनि हो; 사과하다 = माफी माग्नु।",ko:"사과에는 '잘못을 비는 일'이라는 뜻도 있어요. 사과하다 = 잘못을 빌다."}}],
+["h4","home","b","das Zimmer","Mein Zimmer ist hell.","room","My room is bright.","la habitación","Mi habitación es luminosa.","कोठा","koṭhā","मेरो कोठा उज्यालो छ।","방","bang","제 방은 밝아요."],
+["h5","home","b","die Küche","Die Familie isst in der Küche.","kitchen","The family eats in the kitchen.","la cocina","La familia come en la cocina.","भान्सा","bhānsā","परिवार भान्सामा खाना खान्छ।","부엌","bueok","가족이 부엌에서 밥을 먹어요."],
+["h6","home","b","das Bett","Das Bett ist bequem.","bed","The bed is comfortable.","la cama","La cama es cómoda.","ओछ्यान","ochhyān","ओछ्यान आरामदायी छ।","침대","chimdae","침대가 편해요."],
+["h7","home","b","das Fenster","Mach bitte das Fenster auf.","window","Please open the window.","la ventana","Abre la ventana, por favor.","झ्याल","jhyāl","कृपया झ्याल खोल।","창문","changmun","창문 좀 열어 주세요."],
+["h8","home","b","der Schlüssel","Ich finde meinen Schlüssel nicht.","key","I can't find my key.","la llave","No encuentro mi llave.","साँचो","sā̃cho","मैले मेरो साँचो भेटिनँ।","열쇠","yeolsoe","열쇠를 못 찾겠어요."],
+["h9","home","b","der Tisch","Das Buch liegt auf dem Tisch.","table","The book is on the table.","la mesa","El libro está en la mesa.","टेबल","ṭebal","किताब टेबलमा छ।","탁자","takja","책이 탁자 위에 있어요."],
+["pe1","people","b","der Freund","Das ist mein Freund Ram.","friend","This is my friend Ram.","el amigo","Este es mi amigo Ram.","साथी","sāthī","यो मेरो साथी राम हो।","친구","chingu","이 사람은 제 친구 람이에요.",{de:{en:"Freund can also mean 'boyfriend'; neutral: ein Freund von mir (a friend of mine).",de:"Freund kann auch „fester Freund“ bedeuten; neutral: ein Freund von mir.",es:"Freund también puede significar «novio»; neutro: ein Freund von mir.",ne:"Freund को अर्थ प्रेमी पनि हुन सक्छ; सामान्य साथीका लागि ein Freund von mir।",ko:"Freund는 남자친구라는 뜻도 돼요. 그냥 친구는 ein Freund von mir라고 해요."}}],
+["pe2","people","b","der Mann","Der Mann wartet draußen.","man","The man is waiting outside.","el hombre","El hombre espera fuera.","पुरुष","puruṣ","ती पुरुष बाहिर पर्खिरहेका छन्।","남자","namja","남자가 밖에서 기다리고 있어요."],
+["pe3","people","b","die Frau","Die Frau spricht drei Sprachen.","woman","The woman speaks three languages.","la mujer","La mujer habla tres idiomas.","महिला","mahilā","ती महिला तीन भाषा बोल्छिन्।","여자","yeoja","그 여자는 삼 개 국어를 해요."],
+["pe4","people","b","der Lehrer","Unser Lehrer ist sehr nett.","teacher","Our teacher is very kind.","el profesor","Nuestro profesor es muy amable.","शिक्षक","shikṣak","हाम्रो शिक्षक धेरै दयालु हुनुहुन्छ।","선생님","seonsaengnim","우리 선생님은 아주 친절하세요."],
+["pe5","people","b","der Arzt","Der Arzt kommt gleich.","doctor","The doctor is coming soon.","el médico","El médico viene enseguida.","डाक्टर","ḍākṭar","डाक्टर छिट्टै आउनुहुन्छ।","의사","uisa","의사 선생님이 곧 오세요."],
+["pe6","people","b","der Nachbar","Unser Nachbar ist freundlich.","neighbour","Our neighbour is friendly.","el vecino","Nuestro vecino es amable.","छिमेकी","chhimekī","हाम्रो छिमेकी मिलनसार हुनुहुन्छ।","이웃","iut","우리 이웃은 친절해요."],
+["hl1","health","i","der Schmerz","Ich habe Schmerzen im Rücken.","pain","I have pain in my back.","el dolor","Tengo dolor de espalda.","दुखाइ","dukhāi","मेरो ढाडमा दुखाइ छ।","통증","tongjeung","허리에 통증이 있어요."],
+["hl2","health","i","das Medikament","Nehmen Sie das Medikament zweimal täglich.","medicine","Take the medicine twice a day.","el medicamento","Tome el medicamento dos veces al día.","औषधि","auṣadhi","यो औषधि दिनमा दुई पटक खानुहोस्।","약","yak","이 약을 하루에 두 번 드세요."],
+["hl3","health","i","krank","Ich bin heute krank.","ill","I'm ill today.","enfermo","Hoy estoy enfermo.","बिरामी","birāmī","म आज बिरामी छु।","아프다","apeuda","저는 오늘 아파요."],
+["hl4","health","i","gesund","Obst ist gesund.","healthy","Fruit is healthy.","sano","La fruta es sana.","स्वस्थ","swastha","फलफूल स्वस्थकर हुन्छ।","건강하다","geonganghada","과일은 건강에 좋아요."],
+["fe1","feelings","i","glücklich","Wir sind sehr glücklich.","happy","We are very happy.","feliz","Estamos muy felices.","खुसी","khusī","हामी धेरै खुसी छौँ।","행복하다","haengbokhada","우리는 아주 행복해요."],
+["fe2","feelings","i","traurig","Warum bist du traurig?","sad","Why are you sad?","triste","¿Por qué estás triste?","दुखी","dukhī","तिमी किन दुखी छौ?","슬프다","seulpeuda","왜 슬퍼요?"],
+["fe3","feelings","i","müde","Nach der Arbeit bin ich müde.","tired","I'm tired after work.","cansado","Después del trabajo estoy cansado.","थाकेको","thākeko","कामपछि म थाकेको हुन्छु।","피곤하다","pigonhada","일이 끝나면 피곤해요."],
+["fe4","feelings","i","hungrig","Ich bin hungrig.","hungry","I'm hungry.","hambriento","Tengo hambre.","भोको","bhoko","मलाई भोक लागेको छ।","배고프다","baegopeuda","배고파요.",{es:{en:"Spanish usually says tengo hambre (I have hunger) rather than estoy hambriento.",de:"Auf Spanisch sagt man meist tengo hambre („ich habe Hunger“).",es:"Lo habitual es decir tengo hambre, no estoy hambriento.",ne:"स्पेनीमा प्रायः tengo hambre (मलाई भोक छ) भनिन्छ।",ko:"스페인어에서는 보통 estoy hambriento보다 tengo hambre라고 해요."}}],
+["fe5","feelings","i","Angst haben","Ich habe Angst vor Hunden.","to be afraid","I'm afraid of dogs.","tener miedo","Tengo miedo de los perros.","डराउनु","ḍarāunu","म कुकुरसँग डराउँछु।","무섭다","museopda","저는 개가 무서워요."],
+["st1","study","i","die Sprache","Nepali ist eine schöne Sprache.","language","Nepali is a beautiful language.","el idioma","El nepalí es un idioma bonito.","भाषा","bhāṣā","नेपाली सुन्दर भाषा हो।","언어","eoneo","네팔어는 아름다운 언어예요."],
+["st2","study","i","das Wort","Was bedeutet dieses Wort?","word","What does this word mean?","la palabra","¿Qué significa esta palabra?","शब्द","shabda","यो शब्दको अर्थ के हो?","단어","daneo","이 단어는 무슨 뜻이에요?"],
+["st3","study","i","der Satz","Schreib einen Satz mit diesem Wort.","sentence","Write a sentence with this word.","la frase","Escribe una frase con esta palabra.","वाक्य","vākya","यो शब्द प्रयोग गरेर एउटा वाक्य लेख।","문장","munjang","이 단어로 문장을 하나 쓰세요."],
+["st4","study","i","die Frage","Ich habe eine Frage.","question","I have a question.","la pregunta","Tengo una pregunta.","प्रश्न","prashna","मेरो एउटा प्रश्न छ।","질문","jilmun","질문이 하나 있어요."],
+["st5","study","i","die Antwort","Die Antwort ist richtig.","answer","The answer is correct.","la respuesta","La respuesta es correcta.","उत्तर","uttar","उत्तर सही छ।","대답","daedap","대답이 맞아요."],
+["st6","study","i","die Hausaufgabe","Hast du deine Hausaufgaben gemacht?","homework","Have you done your homework?","los deberes","¿Has hecho los deberes?","गृहकार्य","grihakārya","तिमीले गृहकार्य गर्यौ?","숙제","sukje","숙제 했어요?"],
+["w10","work","i","das Büro","Ich bin bis fünf im Büro.","office","I'm in the office until five.","la oficina","Estoy en la oficina hasta las cinco.","कार्यालय","kāryālaya","म पाँच बजेसम्म कार्यालयमा छु।","사무실","samusil","다섯 시까지 사무실에 있어요."],
+["w11","work","i","der Kunde","Der Kunde ist zufrieden.","customer","The customer is satisfied.","el cliente","El cliente está satisfecho.","ग्राहक","grāhak","ग्राहक सन्तुष्ट हुनुहुन्छ।","고객","gogaek","고객이 만족해요."],
+["w12","work","i","der Termin","Ich habe morgen einen Termin beim Arzt.","appointment","I have a doctor's appointment tomorrow.","la cita","Mañana tengo cita con el médico.","भेट","bheṭ","भोलि डाक्टरसँग मेरो भेट छ।","예약","yeyak","내일 병원 예약이 있어요."],
+["w13","work","i","der Vertrag","Wir haben den Vertrag unterschrieben.","contract","We signed the contract.","el contrato","Firmamos el contrato.","करार","karār","हामीले करारमा हस्ताक्षर गर्यौँ।","계약","gyeyak","우리는 계약서에 서명했어요."],
+["w14","work","i","erklären","Können Sie das noch einmal erklären?","to explain","Can you explain that again?","explicar","¿Puede explicarlo otra vez?","बुझाउनु","bujhāunu","फेरि बुझाउन सक्नुहुन्छ?","설명하다","seolmyeonghada","다시 설명해 주시겠어요?"],
+["na1","nature","i","der Berg","Der Mount Everest ist der höchste Berg der Welt.","mountain","Mount Everest is the highest mountain in the world.","la montaña","El Everest es la montaña más alta del mundo.","हिमाल","himāl","सगरमाथा संसारको सबैभन्दा अग्लो हिमाल हो।","산","san","에베레스트는 세계에서 가장 높은 산이에요.",{ne:{en:"हिमाल is a snow mountain; पहाड is a hill or the hill region.",de:"हिमाल ist ein schneebedeckter Berg; पहाड ist ein Hügel oder das Hügelland.",es:"हिमाल es una montaña nevada; पहाड es una colina o la zona de colinas.",ne:"हिमाल हिउँ भएको पर्वत हो; पहाड डाँडा वा पहाडी भेग हो।",ko:"हिमाल은 눈 덮인 산, पहाड는 언덕이나 구릉 지대를 뜻해요."}}],
+["na2","nature","i","der Fluss","Der Fluss ist sehr breit.","river","The river is very wide.","el río","El río es muy ancho.","नदी","nadī","नदी धेरै फराकिलो छ।","강","gang","강이 아주 넓어요."],
+["na3","nature","i","der Baum","Vor dem Haus steht ein Baum.","tree","There is a tree in front of the house.","el árbol","Hay un árbol delante de la casa.","रूख","rūkh","घरको अगाडि एउटा रूख छ।","나무","namu","집 앞에 나무가 있어요."],
+["na4","nature","i","das Meer","Im Sommer fahren wir ans Meer.","sea","In summer we go to the sea.","el mar","En verano vamos al mar.","समुद्र","samudra","गर्मीमा हामी समुद्र जान्छौँ।","바다","bada","여름에 바다에 가요."],
+["na5","nature","i","der Himmel","Heute ist der Himmel klar.","sky","The sky is clear today.","el cielo","Hoy el cielo está despejado.","आकाश","ākāsh","आज आकाश सफा छ।","하늘","haneul","오늘 하늘이 맑아요."],
+["cn1","connectors","i","weil","Ich bleibe zu Hause, weil ich krank bin.","because","I'm staying at home because I'm ill.","porque","Me quedo en casa porque estoy enfermo.","किनभने","kinabhane","म घरमै बस्छु किनभने म बिरामी छु।","왜냐하면","waenyahamyeon","집에 있어요. 왜냐하면 아프기 때문이에요."],
+["cn2","connectors","i","aber","Das Essen ist gut, aber teuer.","but","The food is good but expensive.","pero","La comida es buena, pero cara.","तर","tara","खाना मीठो छ, तर महँगो छ।","하지만","hajiman","음식은 맛있어요. 하지만 비싸요."],
+["cn3","connectors","i","deshalb","Es regnet, deshalb nehme ich den Bus.","therefore","It's raining; therefore I'm taking the bus.","por eso","Llueve, por eso tomo el autobús.","त्यसैले","tyasaile","पानी परिरहेको छ, त्यसैले म बस चढ्छु।","그래서","geuraeseo","비가 와요. 그래서 버스를 타요."],
+["cn4","connectors","a","obwohl","Obwohl es spät ist, arbeitet sie noch.","although","Although it's late, she is still working.","aunque","Aunque es tarde, ella todavía trabaja.","यद्यपि","yadyapi","यद्यपि ढिलो भइसकेको छ, उनी अझै काम गर्दै छिन्।","비록","birok","비록 늦었지만 그녀는 아직 일하고 있어요."],
+["cn5","connectors","a","trotzdem","Es war kalt. Trotzdem sind wir gewandert.","nevertheless","It was cold. Nevertheless, we went hiking.","sin embargo","Hacía frío. Sin embargo, fuimos de excursión.","तैपनि","taipani","जाडो थियो। तैपनि हामी पदयात्रामा गयौँ।","그런데도","geureondedo","추웠어요. 그런데도 우리는 등산을 갔어요."],
+["a7","abstract","a","die Meinung","Was ist Ihre Meinung?","opinion","What is your opinion?","la opinión","¿Cuál es su opinión?","राय","rāya","तपाईंको राय के हो?","의견","uigyeon","의견이 어떠세요?"],
+["a8","abstract","a","die Entscheidung","Das war eine gute Entscheidung.","decision","That was a good decision.","la decisión","Fue una buena decisión.","निर्णय","nirṇaya","त्यो राम्रो निर्णय थियो।","결정","gyeoljeong","좋은 결정이었어요."],
+["a9","abstract","a","die Beziehung","Wir haben eine gute Beziehung.","relationship","We have a good relationship.","la relación","Tenemos una buena relación.","सम्बन्ध","sambandha","हाम्रो सम्बन्ध राम्रो छ।","관계","gwangye","우리는 관계가 좋아요."],
+["a10","abstract","a","die Gesellschaft","Bildung ist wichtig für die Gesellschaft.","society","Education is important for society.","la sociedad","La educación es importante para la sociedad.","समाज","samāj","शिक्षा समाजका लागि महत्त्वपूर्ण छ।","사회","sahoe","교육은 사회에 중요해요."],
+["a11","abstract","a","die Umwelt","Wir müssen die Umwelt schützen.","environment","We must protect the environment.","el medio ambiente","Debemos proteger el medio ambiente.","वातावरण","vātāvaraṇ","हामीले वातावरणको रक्षा गर्नुपर्छ।","환경","hwangyeong","우리는 환경을 보호해야 해요."],
+["a12","abstract","a","die Freiheit","Freiheit ist ein Grundrecht.","freedom","Freedom is a basic right.","la libertad","La libertad es un derecho fundamental.","स्वतन्त्रता","svatantratā","स्वतन्त्रता मौलिक हक हो।","자유","jayu","자유는 기본권이에요."],
+["a13","abstract","a","verbessern","Ich möchte mein Deutsch verbessern.","to improve","I want to improve my German.","mejorar","Quiero mejorar mi alemán.","सुधार्नु","sudhārnu","म मेरो जर्मन सुधार्न चाहन्छु।","향상시키다","hyangsangsikida","독일어 실력을 향상시키고 싶어요."],
+["a14","abstract","a","vergleichen","Vergleichen Sie die Preise.","to compare","Compare the prices.","comparar","Compare los precios.","तुलना गर्नु","tulanā garnu","मूल्यहरू तुलना गर्नुहोस्।","비교하다","bigyohada","가격을 비교해 보세요."],
+["a15","abstract","a","das Wissen","Wissen ist Macht.","knowledge","Knowledge is power.","el conocimiento","El conocimiento es poder.","ज्ञान","gyān","ज्ञान नै शक्ति हो।","지식","jisik","지식은 힘이에요."],
+["a16","abstract","a","die Lösung","Wir finden eine Lösung.","solution","We'll find a solution.","la solución","Encontraremos una solución.","समाधान","samādhān","हामी समाधान खोज्नेछौँ।","해결책","haegyeolchaek","해결책을 찾을 거예요."],
+];
+
+// ---------- More travel phrases: [id, situation, de, en, es, ne, ne romanised, ko, ko romanised] ----------
+const TRV2 = [
+["x23","cafe","Einen Kaffee zum Mitnehmen, bitte.","A coffee to go, please.","Un café para llevar, por favor.","एक कप कफी लैजाने गरी दिनुहोस्।","ek kap kaphī laijāne garī dinuhos.","커피 한 잔 테이크아웃이요.","keopi han jan teikeuausiyo."],
+["x24","cafe","Ist dieser Platz frei?","Is this seat free?","¿Está libre este asiento?","यो सिट खाली छ?","yo siṭ khālī cha?","이 자리 비었어요?","i jari bieosseoyo?"],
+["x25","transport","Wie viel kostet die Fahrt zum Flughafen?","How much is the ride to the airport?","¿Cuánto cuesta ir al aeropuerto?","विमानस्थलसम्म जान कति लाग्छ?","vimānsthalsamma jāna kati lāgcha?","공항까지 얼마예요?","gonghangkkaji eolmayeyo?"],
+["x26","transport","Halten Sie bitte hier.","Please stop here.","Pare aquí, por favor.","कृपया यहाँ रोक्नुहोस्।","kripayā yahā̃ roknuhos.","여기서 세워 주세요.","yeogiseo sewo juseyo."],
+["x27","transport","Von welchem Gleis fährt der Zug?","Which platform does the train leave from?","¿De qué andén sale el tren?","रेल कुन प्लेटफर्मबाट छुट्छ?","rel kun pleṭapharmbāṭa chuṭcha?","기차는 몇 번 승강장에서 출발해요?","gichaneun myeot beon seunggangjangeseo chulbalhaeyo?"],
+["x28","shopping","Haben Sie das eine Nummer größer?","Do you have this one size bigger?","¿Lo tiene en una talla más grande?","यो एक साइज ठूलो छ?","yo ek sāij ṭhūlo cha?","이거 한 치수 큰 거 있어요?","igeo han chisu keun geo isseoyo?"],
+["x29","shopping","Ich schaue mich nur um.","I'm just looking.","Solo estoy mirando.","म हेर्दै मात्र छु।","ma herdai mātra chu.","그냥 구경하는 중이에요.","geunyang gugyeonghaneun jungieyo."],
+["x30","money","Wo ist der nächste Geldautomat?","Where is the nearest ATM?","¿Dónde está el cajero automático más cercano?","नजिकैको एटीएम कहाँ छ?","najikaiko eṭīem kahā̃ cha?","가장 가까운 현금 인출기가 어디예요?","gajang gakkaun hyeongeum inchulgiga eodiyeyo?"],
+["x31","money","Können wir getrennt bezahlen?","Can we pay separately?","¿Podemos pagar por separado?","हामी छुट्टाछुट्टै तिर्न सक्छौँ?","hāmī chuṭṭāchuṭṭai tirna sakchauṁ?","따로 계산할 수 있어요?","ttaro gyesanhal su isseoyo?"],
+["x32","emergency","Ich bin allergisch gegen Nüsse.","I'm allergic to nuts.","Soy alérgico a los frutos secos.","मलाई बदामबाट एलर्जी छ।","malāī badāmbāṭa elarjī cha.","저는 견과류 알레르기가 있어요.","jeoneun gyeongwaryu allereugiga isseoyo."],
+["x33","emergency","Wo ist die nächste Apotheke?","Where is the nearest pharmacy?","¿Dónde está la farmacia más cercana?","नजिकैको औषधि पसल कहाँ छ?","najikaiko auṣadhi pasal kahā̃ cha?","가장 가까운 약국이 어디예요?","gajang gakkaun yakgugi eodiyeyo?"],
+["x34","emergency","Rufen Sie die Polizei!","Call the police!","¡Llame a la policía!","प्रहरी बोलाउनुहोस्!","praharī bolāunuhos!","경찰을 불러 주세요!","gyeongchareul bulleo juseyo!"],
+["x35","emergency","Man hat mir meine Tasche gestohlen.","My bag has been stolen.","Me han robado el bolso.","मेरो झोला चोरी भयो।","mero jholā chorī bhayo.","가방을 도난당했어요.","gabangeul donandanghaesseoyo."],
+["x36","sightseeing","Wann öffnet das Museum?","When does the museum open?","¿A qué hora abre el museo?","सङ्ग्रहालय कति बजे खुल्छ?","saṅgrahālaya kati baje khulcha?","박물관은 몇 시에 열어요?","bangmulgwaneun myeot sie yeoreoyo?"],
+["x37","sightseeing","Können Sie ein Foto von uns machen?","Could you take a photo of us?","¿Nos puede hacer una foto?","हाम्रो फोटो खिचिदिन सक्नुहुन्छ?","hāmro phoṭo khichidina saknuhuncha?","사진 좀 찍어 주실 수 있어요?","sajin jom jjigeo jusil su isseoyo?"],
+["x38","hotel","Das Zimmer ist zu laut.","The room is too noisy.","La habitación es muy ruidosa.","कोठामा धेरै हल्ला छ।","koṭhāmā dherai hallā cha.","방이 너무 시끄러워요.","bangi neomu sikkeureowoyo."],
+["x39","hotel","Kann ich später auschecken?","Can I check out later?","¿Puedo dejar la habitación más tarde?","म अलि ढिलो चेकआउट गर्न सक्छु?","ma ali ḍhilo chekāuṭ garna sakchu?","체크아웃을 늦게 해도 돼요?","chekeuauseul neutge haedo dwaeyo?"],
+["x40","phone","Wie lautet das WLAN-Passwort?","What's the Wi-Fi password?","¿Cuál es la contraseña del wifi?","वाइफाइको पासवर्ड के हो?","wāiphāiko pāsavarḍ ke ho?","와이파이 비밀번호가 뭐예요?","waipai bimilbeonhoga mwoyeyo?"],
+];
+
+// ---------- More phrases of the day: [id, de, en, es, ne, ne romanised, ko, ko romanised, usage note] ----------
+const PHR2 = [
+["p6","Das ist ein Kinderspiel.","That's a piece of cake.","Es pan comido.","त्यो त सजिलै हो।","tyo ta sajilai ho.","식은 죽 먹기예요.","sigeun juk meokgiyeyo.",{en:"Informal. Something is very easy.",de:"Umgangssprachlich: etwas ist sehr leicht.",es:"Coloquial: algo es muy fácil.",ne:"अनौपचारिक: कुनै काम धेरै सजिलो हुँदा।",ko:"아주 쉬운 일을 말할 때 써요."}],
+["p7","Ich bin fix und fertig.","I'm worn out.","Estoy hecho polvo.","म एकदमै थाकेँ।","ma ekdamai thākẽ.","완전히 녹초가 됐어요.","wanjeonhi nokchoga dwaesseoyo.",{en:"Informal. You are completely exhausted.",de:"Umgangssprachlich: völlig erschöpft.",es:"Coloquial: estar agotado.",ne:"अनौपचारिक: एकदमै थाक्दा।",ko:"완전히 지쳤을 때 쓰는 편한 표현이에요."}],
+["p8","Kein Problem.","No problem.","No hay problema.","केही समस्या छैन।","kehī samasyā chaina.","문제없어요.","munjeeopseoyo.",{en:"A friendly reply to thanks or to a request.",de:"Freundliche Antwort auf Dank oder eine Bitte.",es:"Respuesta amable a un agradecimiento o una petición.",ne:"धन्यवाद वा अनुरोधको मैत्रीपूर्ण जवाफ।",ko:"고맙다는 말이나 부탁에 대한 친근한 대답이에요."}],
+["p9","Es kommt darauf an.","It depends.","Depende.","परिस्थितिमा भर पर्छ।","paristhitimā bhar parcha.","상황에 따라 달라요.","sanghwange ttara dallayo.",{en:"When the answer depends on the situation.",de:"Wenn die Antwort von den Umständen abhängt.",es:"Cuando la respuesta depende de la situación.",ne:"उत्तर परिस्थितिअनुसार फरक हुँदा।",ko:"상황에 따라 답이 다를 때 써요."}],
+["p10","Übung macht den Meister.","Practice makes perfect.","La práctica hace al maestro.","अभ्यासले मान्छेलाई सिपालु बनाउँछ।","abhyāsle mānchelāī sipālu banāũcha.","연습이 완벽을 만든다.","yeonseubi wanbyeogeul mandeunda.",{en:"Encouragement to keep practising.",de:"Ermutigung, dranzubleiben.",es:"Para animar a seguir practicando.",ne:"अभ्यास जारी राख्न हौसला दिँदा।",ko:"꾸준히 연습하라고 격려할 때 써요."}],
+["p11","Ich bin ganz Ohr.","I'm all ears.","Soy todo oídos.","म ध्यान दिएर सुन्दैछु।","ma dhyān diera sundaichu.","귀 기울여 듣고 있어요.","gwi giuryeo deutgo isseoyo.",{en:"You are listening attentively.",de:"Man hört aufmerksam zu.",es:"Escuchas con toda atención.",ne:"ध्यान दिएर सुनिरहेको बेला।",ko:"주의 깊게 듣고 있다는 뜻이에요."}],
+["p12","Das ist mir egal.","I don't mind.","Me da igual.","मलाई जे भए पनि हुन्छ।","malāī je bhae pani huncha.","저는 상관없어요.","jeoneun sanggwaneopseoyo.",{en:"Neutral, but it can sound dismissive if said sharply.",de:"Neutral, kann aber abweisend klingen.",es:"Neutro, pero puede sonar despectivo.",ne:"तटस्थ, तर कडा स्वरमा भन्दा रुखो सुनिन सक्छ।",ko:"중립적이지만 퉁명스럽게 말하면 무관심하게 들릴 수 있어요."}],
+["p13","Besser spät als nie.","Better late than never.","Más vale tarde que nunca.","कहिल्यै नभन्दा ढिलै भए पनि राम्रो।","kahilyai nabhandā ḍhilai bhae pani rāmro.","늦더라도 안 하는 것보다 낫다.","neutdeorado an haneun geotboda natda.",{en:"Said when someone finally does something.",de:"Wenn jemand etwas endlich tut.",es:"Cuando alguien por fin hace algo.",ne:"कसैले अन्ततः केही गर्दा भनिन्छ।",ko:"누군가 마침내 무언가를 했을 때 써요."}],
+["p14","Mal sehen.","We'll see.","Ya veremos.","हेरौँला।","herauṁlā.","두고 봐야죠.","dugo bwayajyo.",{en:"A non-committal answer about the future.",de:"Unverbindliche Antwort über die Zukunft.",es:"Respuesta evasiva sobre el futuro.",ne:"भविष्यबारे पक्का नभएको जवाफ।",ko:"앞일에 대해 확답하지 않을 때 써요."}],
+["p15","Das klingt gut!","Sounds good!","¡Suena bien!","राम्रो कुरा!","rāmro kurā!","좋아요!","joayo!",{en:"Agreeing to a plan or suggestion.",de:"Zustimmung zu einem Plan oder Vorschlag.",es:"Para aceptar un plan o una propuesta.",ne:"योजना वा सुझावमा सहमति जनाउँदा।",ko:"계획이나 제안에 동의할 때 써요."}],
+];
+
+// Romanisation per language: rom.ne (Nepali) and rom.ko (Korean). Notes are per target language (notes.ne, notes.ko, notes.es …);
+// phrase usage notes (kind "phrase") apply to every target language.
 const base = RAW.map(r=>({id:r[0],topic:r[1],level:r[2],de:r[3],en:r[4],ne:r[5],rom:{ne:r[6]},ex:{de:r[7],en:r[8],ne:r[9]},notes:r[10]?{ne:r[10]}:{},note:null,kind:"word"}))
   .concat(TRV.map(r=>({id:r[0],topic:"travel",sit:r[1],level:"b",de:r[2],en:r[3],ne:r[4],rom:{ne:r[5]},ex:null,notes:{},note:null,kind:"travel"})))
   .concat(PHR.map(r=>({id:r[0],topic:"phrase",level:"a",de:r[1],en:r[2],ne:r[3],rom:{ne:r[4]},ex:null,notes:{},note:r[5],kind:"phrase"})));
 for (const it of base) {
   const k = KO[it.id];
-  if (!k) continue;
-  it.ko = k[0]; it.rom.ko = k[1];
-  if (it.ex && k[2]) it.ex.ko = k[2];
-  if (k[3]) it.notes.ko = k[3];
+  if (k) { it.ko = k[0]; it.rom.ko = k[1]; if (it.ex && k[2]) it.ex.ko = k[2]; if (k[3]) it.notes.ko = k[3]; }
+  const e = ES[it.id];
+  if (e) { it.es = e[0]; if (it.ex && e[1]) it.ex.es = e[1]; if (e[2]) it.notes.es = e[2]; }
+  if (it.kind === "phrase" && PHR_NOTES_EXTRA[it.id]) Object.assign(it.note, PHR_NOTES_EXTRA[it.id]);
 }
-export const ITEMS = base;
+const added = MORE.map(r=>({id:r[0],topic:r[1],level:r[2],de:r[3],en:r[5],es:r[7],ne:r[9],ko:r[12],rom:{ne:r[10],ko:r[13]},
+    ex:{de:r[4],en:r[6],es:r[8],ne:r[11],ko:r[14]},notes:r[15]||{},note:null,kind:"word"}))
+  .concat(TRV2.map(r=>({id:r[0],topic:"travel",sit:r[1],level:"b",de:r[2],en:r[3],es:r[4],ne:r[5],ko:r[7],rom:{ne:r[6],ko:r[8]},ex:null,notes:{},note:null,kind:"travel"})))
+  .concat(PHR2.map(r=>({id:r[0],topic:"phrase",level:"a",de:r[1],en:r[2],es:r[3],ne:r[4],ko:r[6],rom:{ne:r[5],ko:r[7]},ex:null,notes:{},note:r[8],kind:"phrase"})));
+export const ITEMS = base.concat(added);
 export const BY = Object.fromEntries(ITEMS.map(i=>[i.id,i]));
 export const WORDS = ITEMS.filter(i=>i.kind==="word");
+export const ALL_TRV = TRV.concat(TRV2);
+export const ALL_PHR = PHR.concat(PHR2);
+
+// ---------- Reading texts ("read widely"): sentences aligned across languages for tap-to-translate ----------
+// q: questions with options in every language; a = index of the correct option.
+const L5 = (de, en, es, ne, ko) => ({ de, en, es, ne, ko });
+export const READ = [
+{ id:"rd1", level:"b", title:L5("Anna in Kathmandu","Anna in Kathmandu","Anna en Katmandú","काठमाडौँमा अन्ना","카트만두의 안나"),
+  text:{ de:["Anna wohnt in Berlin.","Im Sommer reist sie nach Kathmandu.","Dort trinkt sie jeden Morgen Tee mit ihrer Freundin Sita."],
+         en:["Anna lives in Berlin.","In summer she travels to Kathmandu.","There she drinks tea with her friend Sita every morning."],
+         es:["Anna vive en Berlín.","En verano viaja a Katmandú.","Allí toma té con su amiga Sita todas las mañanas."],
+         ne:["अन्ना बर्लिनमा बस्छिन्।","गर्मीमा उनी काठमाडौँ जान्छिन्।","त्यहाँ उनी हरेक बिहान आफ्नी साथी सीतासँग चिया पिउँछिन्।"],
+         ko:["안나는 베를린에 살아요.","여름에 안나는 카트만두로 여행을 가요.","거기서 매일 아침 친구 시타와 차를 마셔요."] },
+  q:[ { q:L5("Wo wohnt Anna?","Where does Anna live?","¿Dónde vive Anna?","अन्ना कहाँ बस्छिन्?","안나는 어디에 살아요?"), a:0,
+        o:[L5("In Berlin","In Berlin","En Berlín","बर्लिनमा","베를린"),L5("In Kathmandu","In Kathmandu","En Katmandú","काठमाडौँमा","카트만두"),L5("In Seoul","In Seoul","En Seúl","सोलमा","서울")] },
+      { q:L5("Was trinkt Anna am Morgen?","What does Anna drink in the morning?","¿Qué toma Anna por la mañana?","अन्ना बिहान के पिउँछिन्?","안나는 아침에 뭘 마셔요?"), a:0,
+        o:[L5("Tee","Tea","Té","चिया","차"),L5("Kaffee","Coffee","Café","कफी","커피"),L5("Milch","Milk","Leche","दूध","우유")] } ] },
+{ id:"rd2", level:"b", title:L5("Auf dem Markt","At the market","En el mercado","बजारमा","시장에서"),
+  text:{ de:["Heute gehe ich auf den Markt.","Ich kaufe Äpfel, Reis und Gemüse.","Die Äpfel kosten zwei Euro."],
+         en:["Today I go to the market.","I buy apples, rice and vegetables.","The apples cost two euros."],
+         es:["Hoy voy al mercado.","Compro manzanas, arroz y verdura.","Las manzanas cuestan dos euros."],
+         ne:["आज म बजार जान्छु।","म स्याउ, चामल र तरकारी किन्छु।","स्याउको मूल्य दुई युरो छ।"],
+         ko:["오늘 시장에 가요.","사과하고 쌀하고 채소를 사요.","사과는 이 유로예요."] },
+  q:[ { q:L5("Wohin gehe ich heute?","Where am I going today?","¿Adónde voy hoy?","म आज कहाँ जान्छु?","오늘 어디에 가요?"), a:0,
+        o:[L5("Auf den Markt","To the market","Al mercado","बजार","시장"),L5("Zur Schule","To school","A la escuela","विद्यालय","학교"),L5("Ins Krankenhaus","To the hospital","Al hospital","अस्पताल","병원")] },
+      { q:L5("Wie viel kosten die Äpfel?","How much do the apples cost?","¿Cuánto cuestan las manzanas?","स्याउको मूल्य कति छ?","사과는 얼마예요?"), a:0,
+        o:[L5("Zwei Euro","Two euros","Dos euros","दुई युरो","이 유로"),L5("Zehn Euro","Ten euros","Diez euros","दश युरो","십 유로"),L5("Fünf Euro","Five euros","Cinco euros","पाँच युरो","오 유로")] } ] },
+{ id:"rd3", level:"b", title:L5("Meine Familie","My family","Mi familia","मेरो परिवार","우리 가족"),
+  text:{ de:["Meine Familie ist groß.","Ich habe einen Bruder und zwei Schwestern.","Am Abend essen wir zusammen in der Küche."],
+         en:["My family is big.","I have one brother and two sisters.","In the evening we eat together in the kitchen."],
+         es:["Mi familia es grande.","Tengo un hermano y dos hermanas.","Por la tarde comemos juntos en la cocina."],
+         ne:["मेरो परिवार ठूलो छ।","मेरो एक जना दाजु र दुई जना दिदी छन्।","साँझ हामी सँगै भान्सामा खान्छौँ।"],
+         ko:["우리 가족은 대가족이에요.","저는 형이 한 명, 누나가 두 명 있어요.","저녁에 우리는 부엌에서 함께 밥을 먹어요."] },
+  q:[ { q:L5("Wie viele Schwestern habe ich?","How many sisters do I have?","¿Cuántas hermanas tengo?","मेरा कति जना दिदी छन्?","누나가 몇 명 있어요?"), a:0,
+        o:[L5("Zwei","Two","Dos","दुई जना","두 명"),L5("Eine","One","Una","एक जना","한 명"),L5("Drei","Three","Tres","तीन जना","세 명")] },
+      { q:L5("Wo essen wir am Abend?","Where do we eat in the evening?","¿Dónde comemos por la tarde?","साँझ हामी कहाँ खान्छौँ?","저녁에 어디에서 밥을 먹어요?"), a:0,
+        o:[L5("In der Küche","In the kitchen","En la cocina","भान्सामा","부엌에서"),L5("Im Restaurant","In a restaurant","En un restaurante","रेस्टुरेन्टमा","식당에서"),L5("Im Büro","In the office","En la oficina","कार्यालयमा","사무실에서")] } ] },
+{ id:"rd4", level:"i", title:L5("Ein Arbeitstag","A working day","Un día de trabajo","कामको एक दिन","어느 근무일"),
+  text:{ de:["Ravi arbeitet in einem Büro in München.","Jeden Morgen fährt er mit dem Fahrrad zur Arbeit.","Um zehn Uhr hat er eine Besprechung mit einem Kunden.","Nach der Arbeit ist er oft müde, aber glücklich."],
+         en:["Ravi works in an office in Munich.","Every morning he cycles to work.","At ten o'clock he has a meeting with a customer.","After work he is often tired, but happy."],
+         es:["Ravi trabaja en una oficina en Múnich.","Cada mañana va al trabajo en bicicleta.","A las diez tiene una reunión con un cliente.","Después del trabajo a menudo está cansado, pero feliz."],
+         ne:["रवि म्युनिखको एउटा कार्यालयमा काम गर्छन्।","हरेक बिहान उनी साइकलमा काममा जान्छन्।","दश बजे उनको एक जना ग्राहकसँग बैठक हुन्छ।","कामपछि उनी प्रायः थाकेका तर खुसी हुन्छन्।"],
+         ko:["라비는 뮌헨에 있는 사무실에서 일해요.","매일 아침 자전거로 출근해요.","열 시에 고객과 회의가 있어요.","일이 끝나면 자주 피곤하지만 행복해요."] },
+  q:[ { q:L5("Wie kommt Ravi zur Arbeit?","How does Ravi get to work?","¿Cómo va Ravi al trabajo?","रवि काममा कसरी जान्छन्?","라비는 어떻게 출근해요?"), a:0,
+        o:[L5("Mit dem Fahrrad","By bicycle","En bicicleta","साइकलमा","자전거로"),L5("Mit dem Auto","By car","En coche","गाडीमा","자동차로"),L5("Mit dem Zug","By train","En tren","रेलमा","기차로")] },
+      { q:L5("Wann ist die Besprechung?","When is the meeting?","¿Cuándo es la reunión?","बैठक कति बजे हुन्छ?","회의는 몇 시예요?"), a:0,
+        o:[L5("Um zehn Uhr","At ten o'clock","A las diez","दश बजे","열 시"),L5("Um acht Uhr","At eight o'clock","A las ocho","आठ बजे","여덟 시"),L5("Um fünf Uhr","At five o'clock","A las cinco","पाँच बजे","다섯 시")] } ] },
+{ id:"rd5", level:"i", title:L5("Trekking in Nepal","Trekking in Nepal","Senderismo en Nepal","नेपालमा पदयात्रा","네팔 트레킹"),
+  text:{ de:["Im Oktober ist das Wetter in Nepal klar und trocken.","Viele Touristen wandern dann in den Bergen.","Von Pokhara aus sieht man schneebedeckte Gipfel.","Man sollte warme Kleidung und genug Wasser mitnehmen."],
+         en:["In October the weather in Nepal is clear and dry.","Many tourists go hiking in the mountains then.","From Pokhara you can see snow-covered peaks.","You should take warm clothes and enough water."],
+         es:["En octubre el tiempo en Nepal es despejado y seco.","Entonces muchos turistas hacen senderismo en las montañas.","Desde Pokhara se ven cumbres cubiertas de nieve.","Conviene llevar ropa de abrigo y suficiente agua."],
+         ne:["अक्टोबरमा नेपालको मौसम सफा र सुक्खा हुन्छ।","त्यस बेला धेरै पर्यटकहरू हिमालमा पदयात्रा गर्छन्।","पोखराबाट हिउँले ढाकेका चुचुराहरू देखिन्छन्।","न्यानो लुगा र पर्याप्त पानी लैजानुपर्छ।"],
+         ko:["10월에 네팔의 날씨는 맑고 건조해요.","그때 많은 관광객이 산에서 트레킹을 해요.","포카라에서는 눈 덮인 봉우리가 보여요.","따뜻한 옷과 충분한 물을 가져가야 해요."] },
+  q:[ { q:L5("Wie ist das Wetter im Oktober?","What is the weather like in October?","¿Qué tiempo hace en octubre?","अक्टोबरमा मौसम कस्तो हुन्छ?","10월에 날씨가 어때요?"), a:0,
+        o:[L5("Klar und trocken","Clear and dry","Despejado y seco","सफा र सुक्खा","맑고 건조해요"),L5("Regnerisch","Rainy","Lluvioso","पानी परिरहने","비가 많이 와요"),L5("Sehr heiß","Very hot","Muy caluroso","धेरै गर्मी","아주 더워요")] },
+      { q:L5("Was sollte man mitnehmen?","What should you take with you?","¿Qué conviene llevar?","के लैजानुपर्छ?","무엇을 가져가야 해요?"), a:0,
+        o:[L5("Warme Kleidung und Wasser","Warm clothes and water","Ropa de abrigo y agua","न्यानो लुगा र पानी","따뜻한 옷과 물"),L5("Nur einen Regenschirm","Only an umbrella","Solo un paraguas","छाता मात्र","우산만"),L5("Viel Gepäck","Lots of luggage","Mucho equipaje","धेरै सामान","짐을 많이")] } ] },
+{ id:"rd6", level:"a", title:L5("Wie man Wörter lernt","How to learn words","Cómo aprender palabras","शब्द कसरी सिक्ने","단어를 배우는 방법"),
+  text:{ de:["Wer eine Sprache lernt, sollte Wörter im Zusammenhang lernen.","Ein Wort, das man in einem ganzen Satz sieht, bleibt besser im Gedächtnis.","Regelmäßiges Lesen erweitert den Wortschatz ganz nebenbei.","Trotzdem braucht man aktives Üben: Sätze laut sprechen und selbst schreiben."],
+         en:["Anyone learning a language should learn words in context.","A word you see in a whole sentence stays in your memory better.","Reading regularly expands your vocabulary along the way.","Nevertheless, you need active practice: saying sentences aloud and writing your own."],
+         es:["Quien aprende un idioma debería aprender las palabras en contexto.","Una palabra que se ve en una frase completa se recuerda mejor.","Leer con regularidad amplía el vocabulario casi sin darse cuenta.","Sin embargo, hace falta práctica activa: decir frases en voz alta y escribir las propias."],
+         ne:["भाषा सिक्ने जो कोहीले शब्दहरू सन्दर्भमा सिक्नुपर्छ।","पूरा वाक्यमा देखेको शब्द राम्ररी सम्झनामा रहन्छ।","नियमित पढाइले शब्दभण्डार आफैँ बढाउँछ।","तैपनि सक्रिय अभ्यास चाहिन्छ: वाक्यहरू ठूलो स्वरमा बोल्ने र आफैँ लेख्ने।"],
+         ko:["언어를 배우는 사람은 단어를 문맥 속에서 배워야 해요.","완전한 문장 속에서 본 단어가 더 잘 기억에 남아요.","꾸준히 읽으면 어휘가 자연스럽게 늘어나요.","그래도 능동적인 연습이 필요해요. 문장을 소리 내어 말하고 직접 써 보세요."] },
+  q:[ { q:L5("Wie sollte man Wörter lernen?","How should you learn words?","¿Cómo se deberían aprender las palabras?","शब्दहरू कसरी सिक्नुपर्छ?","단어를 어떻게 배워야 해요?"), a:0,
+        o:[L5("Im Zusammenhang","In context","En contexto","सन्दर्भमा","문맥 속에서"),L5("In langen Listen","In long lists","En listas largas","लामो सूचीमा","긴 목록으로"),L5("Nur durch Hören","Only by listening","Solo escuchando","सुनेर मात्र","듣기만 해서")] },
+      { q:L5("Was bewirkt regelmäßiges Lesen?","What does regular reading do?","¿Qué consigue la lectura regular?","नियमित पढाइले के गर्छ?","꾸준히 읽으면 어떻게 돼요?"), a:0,
+        o:[L5("Es erweitert den Wortschatz","It expands your vocabulary","Amplía el vocabulario","शब्दभण्डार बढाउँछ","어휘가 늘어나요"),L5("Es ersetzt das Sprechen","It replaces speaking","Sustituye a hablar","बोल्नुको सट्टा हुन्छ","말하기를 대신해요"),L5("Es macht müde","It makes you tired","Cansa","थकाउँछ","피곤해져요")] } ] },
+];
+export const READ_BY = Object.fromEntries(READ.map((r) => [r.id, r]));

@@ -4,4 +4,8 @@
     <string name="title_activity_main">Bhasha</string>
     <string name="package_name">com.sachitss.bhasha</string>
     <string name="custom_url_scheme">com.sachitss.bhasha</string>
+    <string name="widget_label">Bhasha words</string>
+    <string name="widget_description">A word from your Bhasha deck, changing through the day.</string>
+    <string name="widget_empty">Open Bhasha to start</string>
+    <string name="widget_next">Next word</string>
 </resources>

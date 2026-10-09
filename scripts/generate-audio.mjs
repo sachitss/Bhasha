@@ -20,7 +20,7 @@ const DRY = args.has("--dry-run"), FORCE = args.has("--force");
 const KEY = process.env.AZURE_SPEECH_KEY, REGION = process.env.AZURE_SPEECH_REGION || "westeurope";
 
 // Native neural voices per language and gender. Override with e.g. VOICE_DE_F=de-DE-SeraphinaMultilingualNeural.
-const LOCALE = { de: "de-DE", en: "en-GB", ne: "ne-NP", ko: "ko-KR" };
+const LOCALE = { de: "de-DE", en: "en-GB", ne: "ne-NP", ko: "ko-KR", es: "es-ES" };
 const VOICES = {
   "de-f": process.env.VOICE_DE_F || "de-DE-KatjaNeural",
   "de-m": process.env.VOICE_DE_M || "de-DE-ConradNeural",
@@ -30,6 +30,8 @@ const VOICES = {
   "ne-m": process.env.VOICE_NE_M || "ne-NP-SagarNeural",
   "ko-f": process.env.VOICE_KO_F || "ko-KR-SunHiNeural",
   "ko-m": process.env.VOICE_KO_M || "ko-KR-InJoonNeural",
+  "es-f": process.env.VOICE_ES_F || "es-ES-ElviraNeural",
+  "es-m": process.env.VOICE_ES_M || "es-ES-AlvaroNeural",
 };
 
 const esc = (s) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;" }[c]));
@@ -72,8 +74,8 @@ async function synth(voice, locale, text, rate, attempt = 1) {
     },
     body: ssml(voice, locale, text, rate),
   });
-  if ((r.status === 429 || r.status >= 500) && attempt < 6) {
-    await new Promise((res) => setTimeout(res, 1000 * 2 ** attempt));
+  if ((r.status === 429 || r.status >= 500) && attempt < 9) {
+    await new Promise((res) => setTimeout(res, Math.min(60000, 1000 * 2 ** attempt)));
     return synth(voice, locale, text, rate, attempt + 1);
   }
   if (!r.ok) throw new Error(`TTS failed (${r.status}) for "${text}" with ${voice}: ${await r.text()}`);
@@ -124,7 +126,7 @@ async function main() {
     const h = sha("trim1|" + VOICES[p.slot] + "|" + p.rate + "|" + p.text);
     writeAudio(p.file, await synth(VOICES[p.slot], LOCALE[p.lang], p.text, p.rate));
     hashes[`${p.slot}/${p.key}`] = h;
-    if (++done % 50 === 0) console.log(`  ${done}/${plan.length}`);
+    if (++done % 50 === 0) { console.log(`  ${done}/${plan.length}`); writeFileSync(hashesPath, JSON.stringify(hashes, null, 1) + "\n"); }
   }), 4);
 
   // Index for the app, and removal of audio for deleted content.

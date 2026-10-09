@@ -51,10 +51,39 @@ export function formatInterval(days) {
   return Math.round(days) + " d";
 }
 
+/* ---------- Learning focus: the four skills plus vocabulary ---------- */
+export const SKILLS = ["vocab", "listen", "read", "speak", "write"];
+/** Which skill each exercise trains. Vocabulary drives all four skills; these are the main targets. */
+export const TASK_SKILL = {
+  study: "vocab", mcq: "vocab", reverse: "vocab", match: "vocab",
+  audio: "listen", dictation: "listen",
+  fill: "read", order: "read", read: "read",
+  pron: "speak",
+  type: "write", translate: "write", write: "write",
+};
+/** Normalise focus weights; older profiles had "context", which becomes reading. */
+export function normPrio(p = {}) {
+  const out = {
+    vocab: p.vocab ?? 30, listen: p.listen ?? 20, speak: p.speak ?? 20,
+    read: p.read ?? p.context ?? 15, write: p.write ?? 15,
+  };
+  for (const k of SKILLS) out[k] = Math.max(0, Math.min(100, +out[k] || 0));
+  return out;
+}
+export const FOCUS_PRESETS = {
+  balanced: { vocab: 30, listen: 20, speak: 20, read: 15, write: 15 },
+  listen: { vocab: 25, listen: 40, speak: 15, read: 10, write: 10 },
+  read: { vocab: 25, listen: 10, speak: 10, read: 40, write: 15 },
+  speak: { vocab: 25, listen: 15, speak: 40, read: 10, write: 10 },
+  write: { vocab: 25, listen: 10, speak: 10, read: 15, write: 40 },
+};
+const share = (prio, k) => { const p = normPrio(prio); const tot = SKILLS.reduce((s, x) => s + p[x], 0) || 1; return p[k] / tot; };
+
 /* ---------- Daily plan (adaptive) ---------- */
 /**
  * How big today's session is. New words are halved when recent accuracy is below 70 %,
  * and capped at 2 when more than 15 reviews are waiting, so reviews never pile up.
+ * A reading text is added when reading has at least 15 % of the focus (30 % in a 10-minute plan).
  */
 export function planNumbers({ minutes, prio, dueCount, accuracy }) {
   const n = SESSION_SIZE[minutes] || 14;
@@ -62,13 +91,13 @@ export function planNumbers({ minutes, prio, dueCount, accuracy }) {
   if (accuracy !== null && accuracy !== undefined && accuracy < 0.7) nNew = Math.ceil(nNew / 2);
   if (dueCount > 15) nNew = Math.min(nNew, 2);
   const nDue = Math.min(dueCount, Math.ceil(n * 0.6));
-  const tot = (prio.vocab + prio.listen + prio.speak + prio.context) || 1;
-  const nPron = Math.max(1, Math.round((n * prio.speak) / tot));
-  return { n, nNew, nDue, nPron };
+  const nPron = Math.max(1, Math.round(n * share(prio, "speak")));
+  const nRead = share(prio, "read") >= (minutes <= 10 ? 0.3 : 0.15) ? 1 : 0;
+  return { n, nNew, nDue, nPron, nRead };
 }
 
 export function coreWord(s) {
-  return s.replace(/^(der|die|das|to|sich)\s+/i, "").replace(/[?!.]/g, "").trim();
+  return s.replace(/^(der|die|das|to|sich|el|la|los|las)\s+/i, "").replace(/[¿¡?!.]/g, "").trim();
 }
 export function blankable(item, lang) {
   const ex = item.ex && item.ex[lang];
@@ -76,16 +105,40 @@ export function blankable(item, lang) {
   const core = coreWord(item[lang]);
   return core.length > 1 && ex.toLowerCase().includes(core.toLowerCase());
 }
+/** Sentence split into tokens for the word-order exercise. */
+export const tokens = (sentence) => sentence.trim().split(/\s+/).filter(Boolean);
+export function canOrder(item, lang) {
+  const ex = item.ex && item.ex[lang];
+  if (!ex) return false;
+  const n = tokens(ex).length;
+  return n >= 3 && n <= 9 && new Set(tokens(ex)).size === n;
+}
+/** A shuffled order of token indices that is never the original order. */
+export function shuffledOrder(n, rand = Math.random) {
+  const idx = [...Array(n).keys()];
+  for (let tries = 0; tries < 20; tries++) {
+    for (let i = n - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [idx[i], idx[j]] = [idx[j], idx[i]]; }
+    if (n < 2 || idx.some((v, i) => v !== i)) return idx;
+  }
+  return idx.reverse();
+}
+const short = (item, lang) => tokens(coreWord(item[lang] || "")).length <= 3;
 
 /** Weighted choice of task type for a review item, following the learner's focus. */
 export function pickTaskType(item, isNew, prio, lang, rand = Math.random) {
   if (isNew) return "study";
+  const p = normPrio(prio);
+  const hasEx = !!(item.ex && item.ex[lang]);
   const w = [
-    ["mcq", prio.vocab * 0.5],
-    ["reverse", prio.vocab * 0.5],
-    ["audio", prio.listen],
-    ["fill", blankable(item, lang) ? prio.context : 0],
-    ["type", prio.vocab * 0.25],
+    ["mcq", p.vocab * 0.35],
+    ["reverse", p.vocab * 0.3],
+    ["audio", p.listen * 0.5],
+    ["dictation", short(item, lang) ? p.listen * 0.5 : 0],
+    ["fill", blankable(item, lang) ? p.read * 0.5 : 0],
+    ["order", canOrder(item, lang) ? p.read * 0.5 : 0],
+    ["type", short(item, lang) ? p.write * 0.35 : 0],
+    ["translate", hasEx ? p.write * 0.35 : 0],
+    ["write", hasEx && item.kind !== "travel" ? p.write * 0.3 : 0],
   ];
   const tot = w.reduce((s, x) => s + x[1], 0) || 1;
   let r = rand() * tot;
@@ -94,14 +147,16 @@ export function pickTaskType(item, isNew, prio, lang, rand = Math.random) {
 }
 
 /**
- * Build a session. ctx: { items, words, prog, profile, now, wotdId, dueIds, accuracy, mode, rand }
- * Returns tasks [{id, type, why}]. Due reviews come first (recently missed before oldest),
- * then new words (as study cards, checked again later in the session), then pronunciation.
+ * Build a session. ctx: { items, words, prog, profile, now, wotdId, dueIds, accuracy, mode, readId, rand }
+ * Returns tasks [{id, type, why}] plus group tasks {type:"match", ids} and {type:"read", rid}.
+ * Due reviews come first (recently missed before oldest), then new words (as study cards, checked again later
+ * in the session), a matching round, a reading text when reading is part of the focus, then pronunciation.
  */
 export function buildSession(ctx) {
-  const { items, words, prog, profile, now = Date.now(), wotdId, dueIds, accuracy, mode, rand = Math.random } = ctx;
+  const { items, words, prog, profile, now = Date.now(), wotdId, dueIds, accuracy, mode, readId, rand = Math.random } = ctx;
   const st = (id) => itemState(prog[id], now);
   const lang = profile.target;
+  const prio = normPrio(profile.prio);
   const tasks = [], used = new Set();
   const add = (id, type, why) => { tasks.push({ id, type, why }); used.add(id); };
 
@@ -114,38 +169,121 @@ export function buildSession(ctx) {
     return tasks;
   }
 
-  const { n, nNew, nDue, nPron } = planNumbers({ minutes: profile.minutes, prio: profile.prio, dueCount: dueIds.length, accuracy });
+  const { n, nNew, nDue, nPron, nRead } = planNumbers({ minutes: profile.minutes, prio, dueCount: dueIds.length, accuracy });
   const byId = Object.fromEntries(items.map((i) => [i.id, i]));
   if (wotdId && st(wotdId) === "new") add(wotdId, "study", "whyWotd");
   dueIds.slice(0, nDue).forEach((id) => {
     const p = prog[id];
-    add(id, pickTaskType(byId[id], false, profile.prio, lang, rand), p.lapseAt && now - p.lapseAt < 3 * DAY ? "whyLapse" : "whyDue");
+    add(id, pickTaskType(byId[id], false, prio, lang, rand), p.lapseAt && now - p.lapseAt < 3 * DAY ? "whyLapse" : "whyDue");
   });
   const lvl = LEVEL_RANK[profile.level];
   const fresh = words
     .filter((i) => !used.has(i.id) && st(i.id) === "new" && LEVEL_RANK[i.level] <= lvl)
-    .sort((a, b) => (LEVEL_RANK[b.level] === lvl) - (LEVEL_RANK[a.level] === lvl));
+    .sort((a, b) => (b.kind === "custom") - (a.kind === "custom") || (LEVEL_RANK[b.level] === lvl) - (LEVEL_RANK[a.level] === lvl));
   fresh.slice(0, nNew).forEach((i) => add(i.id, "study", "whyNew"));
 
   const newIds = tasks.filter((x) => x.type === "study").map((x) => x.id);
   const late = [];
   newIds.forEach((id) => { if (tasks.length + late.length < n - nPron) late.push({ id, type: rand() < 0.5 ? "mcq" : "audio", why: "whyNew" }); });
   Object.keys(prog).filter((id) => byId[id] && !used.has(id) && st(id) === "learning").forEach((id) => {
-    if (tasks.length + late.length < n - nPron) add(id, pickTaskType(byId[id], false, profile.prio, lang, rand), "whyLapse");
+    if (tasks.length + late.length < n - nPron) add(id, pickTaskType(byId[id], false, prio, lang, rand), "whyLapse");
   });
   for (const i of words) {
     if (tasks.length + late.length >= n - nPron) break;
     if (!used.has(i.id) && st(i.id) === "new" && LEVEL_RANK[i.level] <= lvl) add(i.id, "study", "whyNew");
   }
+
+  // Matching round: four words the learner has already met, with distinct target text.
+  const seen = [...new Set([...used, ...Object.keys(prog)])]
+    .filter((id) => byId[id] && st(id) !== "new" && byId[id][lang] && byId[id].kind !== "phrase");
+  const matchIds = [];
+  for (const id of seen) { if (matchIds.length < 4 && !matchIds.some((m) => byId[m][lang] === byId[id][lang])) matchIds.push(id); }
+  const extras = [];
+  if (matchIds.length === 4) extras.push({ type: "match", ids: matchIds, why: "whyMatch" });
+  if (nRead && readId) extras.push({ type: "read", rid: readId, why: "whyRead" });
+
   const ids = [...used];
   const pron = [];
   for (let k = 0; k < nPron && ids.length; k++) pron.push({ id: ids[(k * 3) % ids.length], type: "pron", why: "whyPron" });
 
-  // Interleave reviews and study cards; checks of today's new words and pronunciation come after.
+  // Interleave reviews and study cards; checks of today's new words, matching, reading and pronunciation come after.
   const studies = tasks.filter((x) => x.type === "study"), checks = tasks.filter((x) => x.type !== "study");
   const out = [];
   while (checks.length || studies.length) { if (checks.length) out.push(checks.shift()); if (studies.length) out.push(studies.shift()); }
-  return out.concat(late, pron);
+  return out.concat(late, extras, pron);
+}
+
+/* ---------- Answer checking ---------- */
+/** Lower-case, NFC, Latin accents removed (Devanagari and Hangul unchanged), punctuation and spaces removed. */
+export function looseText(s) {
+  return String(s || "").normalize("NFKD").replace(/[\u0300-\u036f]/g, "").normalize("NFC").toLowerCase()
+    .replace(/[^\p{L}\p{M}\p{N}]/gu, "");
+}
+/** Typed or dictated answer: the target word (articles and accents optional) or, for Nepali and Korean, its romanisation. */
+export function answerOk(input, item, lang) {
+  const v = looseText(input);
+  if (!v) return false;
+  if (v === looseText(coreWord(item[lang] || "")) || v === looseText(item[lang])) return true;
+  const rom = item.rom && item.rom[lang];
+  return !!rom && v === looseText(rom);
+}
+/** Writing check (a hint, not a verdict): does the learner's sentence contain the word or its stem? */
+export function usesWord(sentence, item, lang) {
+  const s = String(sentence || "").toLowerCase();
+  const core = coreWord(item[lang] || "").toLowerCase().split(/\s+/)[0] || "";
+  if (!core) return false;
+  let stem = core;
+  if (lang === "ko") stem = core.replace(/(하다|다)$/, "") || core;
+  else if (lang === "ne") stem = core.replace(/नु$/, "") || core;
+  else if (core.length > 4) stem = core.slice(0, core.length - 2);
+  return s.includes(stem);
+}
+/** Share of the model sentence's words that appear in the learner's translation (0–1). */
+export function overlapScore(answer, model) {
+  const m = tokens(model).map(looseText).filter(Boolean);
+  const a = new Set(tokens(answer).map(looseText).filter(Boolean));
+  if (!m.length) return 0;
+  return m.filter((w) => a.has(w)).length / m.length;
+}
+
+/* ---------- Passive exposure (lock screen, widget, Glance mode) ---------- */
+/**
+ * Words to show without studying: due reviews first, then words being learnt, then familiar words seen least recently,
+ * then upcoming new words at the learner's level (pre-exposure). Mastered words are left out.
+ */
+export function passiveDeck({ items, prog, profile, now = Date.now(), n = 24, wotdId }) {
+  const lang = profile.target, known = profile.known, lvl = LEVEL_RANK[profile.level];
+  const ok = (i) => i[lang] && (i[known] || i.mean) && i.kind !== "phrase";
+  const st = (i) => itemState(prog[i.id], now);
+  const pool = items.filter(ok);
+  const by = (s) => pool.filter((i) => st(i) === s);
+  const familiar = by("familiar").sort((a, b) => (prog[a.id].last || 0) - (prog[b.id].last || 0));
+  const fresh = pool.filter((i) => st(i) === "new" && LEVEL_RANK[i.level] <= lvl);
+  const first = wotdId ? pool.filter((i) => i.id === wotdId) : [];
+  const out = [];
+  for (const i of [...first, ...by("review"), ...by("learning"), ...familiar, ...fresh]) {
+    if (out.length >= n) break;
+    if (!out.includes(i.id)) out.push(i.id);
+  }
+  return out;
+}
+/**
+ * Lock-screen word times: perDay moments spread evenly between hours from and to, for the next `days` days,
+ * skipping times already past.
+ */
+export function lockTimes({ perDay = 6, from = 8, to = 21, days = 2, now = Date.now() }) {
+  const out = [];
+  const span = Math.max(1, to - from);
+  const d0 = new Date(now); d0.setHours(0, 0, 0, 0);
+  for (let d = 0; d < days; d++) {
+    for (let k = 0; k < perDay; k++) {
+      const t = new Date(d0); t.setDate(d0.getDate() + d);
+      const minutes = Math.round((from + (span * (k + 0.5)) / perDay) * 60);
+      t.setHours(0, minutes, 0, 0);
+      if (t.getTime() > now + 60e3) out.push(t.getTime());
+    }
+  }
+  return out;
 }
 
 /* ---------- Pronunciation analysis ---------- */
@@ -208,12 +346,13 @@ export const PREFERRED_VOICE = {
   en: { f: /sonia|libby|maisie/, m: /ryan|thomas/ },
   ne: { f: /hemkala/, m: /sagar/ },
   ko: { f: /sunhi/, m: /injoon/ },
+  es: { f: /elvira|ximena|abril|laura|helena|monica|paulina/, m: /alvaro|jorge|pablo|diego/ },
 };
 const GENDER_HINT = {
-  f: /female|weiblich|katja|seraphina|amala|hedda|anna|petra|helena|vicki|marlene|sonia|libby|maisie|hazel|susan|kate|serena|samantha|karen|moira|tessa|fiona|zira|aria|jenny|hemkala|lekha|swara|sunhi|yuna|jimin|seoyeon|soonbok|yujin|heami/,
-  m: /\bmale|männlich|conrad|killian|florian|stefan|markus|yannick|hans|ryan|thomas|daniel|oliver|george|arthur|alfie|david|mark\b|guy|sagar|rishi|madhur|injoon|hyunsu|bongjin|gookmin|minsu/,
+  f: /female|weiblich|katja|seraphina|amala|hedda|anna|petra|helena|vicki|marlene|sonia|libby|maisie|hazel|susan|kate|serena|samantha|karen|moira|tessa|fiona|zira|aria|jenny|hemkala|lekha|swara|sunhi|yuna|jimin|seoyeon|soonbok|yujin|heami|elvira|ximena|abril|laura|helena|monica|paulina/,
+  m: /\bmale|männlich|conrad|killian|florian|stefan|markus|yannick|hans|ryan|thomas|daniel|oliver|george|arthur|alfie|david|mark\b|guy|sagar|rishi|madhur|injoon|hyunsu|bongjin|gookmin|minsu|alvaro|jorge|pablo|diego/,
 };
-const NATIVE_LOCALE = { de: "de-de", en: "en-gb", ne: "ne-np", ko: "ko-kr" };
+const NATIVE_LOCALE = { de: "de-de", en: "en-gb", ne: "ne-np", ko: "ko-kr", es: "es-es" };
 
 export function voiceGender(name) {
   const n = (name || "").toLowerCase();

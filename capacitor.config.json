@@ -10,5 +10,11 @@
     "contentInset": "never",
     "limitsNavigationsToAppBoundDomains": false
   },
-  "backgroundColor": "#0E1222"
+  "backgroundColor": "#0E1222",
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_bhasha",
+      "iconColor": "#2B3A8C"
+    }
+  }
 }
