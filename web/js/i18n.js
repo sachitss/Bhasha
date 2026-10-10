@@ -222,3 +222,93 @@ es:{lang_es:"Español",tag:"Alemán · Inglés · Nepalí · Coreano · Español
 
 Object.assign(S.es, ES_UI);
 for (const l of Object.keys(NEW)) Object.assign(S[l], NEW[l]);
+
+// v1.3: numbers, games, conversations, grammar
+const V13 = {
+ en: {
+  numTitle:"Numbers 0 – 1,000,000",numSub:"Count, listen and practise – from zero to a million.",numExplore:"Explore",numPractice:"Practise",numSteps:"Steps to a million",numStepsSub:"Thousands, ten thousands, hundred thousands – each block is ten times the one before.",
+  numQHear:"Listen and type the number",numQWord:"Which number is this?",numQDigits:"Choose the words for this number",numTypePh:"Number in digits",numTap:"Tap a number to hear it.",numCount:"Count up",
+  numTip_de:"German says the units before the tens – 21 is einundzwanzig ('one-and-twenty') – and writes numbers below a million as one word.",
+  numTip_en:"British English says 'and' after hundred: three hundred and forty-seven.",
+  numTip_es:"100 is cien, but 101–199 use ciento. 16–29 are one word: dieciséis, veintiuno.",
+  numTip_ne:"Every number up to 99 has its own word. Large numbers are counted in lakh: 1,00,000 = एक लाख, a million = दस लाख.",
+  numTip_ko:"These are Sino-Korean numbers (일, 이, 삼…) for numbers, prices and dates. 10,000 is one unit: 만. Native Korean numbers (하나, 둘, 셋…) count things and hours.",
+  games:"Vocabulary games",gamesSub:"Play with the words you are learning.",gSpeed:"Speed round",gSpeedSub:"As many words as you can in 60 seconds.",gMemory:"Memory pairs",gMemorySub:"Turn over two cards: find word and meaning.",
+  gSpell:"Spelling",gSpellSub:"Put the letters in the right order.",gNumRush:"Number rush",gNumRushSub:"Hear a number, type it – 60 seconds.",
+  best:"Best: {n}",score:"Score: {n}",timeLeft:"{s} s",playAgain:"Play again",gameOver:"Time's up!",newBest:"New best score!",moves:"Moves: {n}",pairsFound:"All pairs found in {n} moves!",spellDone:"{c} of {n} words spelled correctly",skip:"Skip",
+  convs:"Conversations",convsSub:"Chat with a native speaker – answer by choosing or by speaking.",convYourTurn:"Your answer",convSpeak:"Say it",convListening:"Listening…",convHeard:"Heard: {t}",
+  convTryAgain:"Not quite – try again.",convDone:"Conversation complete!",convShowHint:"Show translations",convRestart:"Start again",convNoSR:"Speech recognition isn't available here – choose your answer instead.",
+  grammar:"Grammar",grammarSub:"Short rules, tables and exercises.",gRule:"Rule",gTable:"Table",gPractice:"Practise",gDone:"{c} of {n} correct",
+  mNumbers:"Numbers: from 0 to a million, with every number spoken by a native voice.",mGames:"Games: speed round, memory, spelling and number rush keep repetition fun.",mConv:"Conversations: real situations where you answer the native speaker – by choosing or speaking.",mGrammar:"Grammar: a short rule and a table, then practice – the patterns behind the words.",
+ },
+ de: {
+  numTitle:"Zahlen 0 – 1.000.000",numSub:"Zählen, hören und üben – von null bis zu einer Million.",numExplore:"Entdecken",numPractice:"Üben",numSteps:"Schritte bis zur Million",numStepsSub:"Tausender, Zehntausender, Hunderttausender – jeder Block ist zehnmal so groß wie der vorige.",
+  numQHear:"Hör zu und tippe die Zahl",numQWord:"Welche Zahl ist das?",numQDigits:"Wähle die Wörter für diese Zahl",numTypePh:"Zahl in Ziffern",numTap:"Tippe auf eine Zahl, um sie zu hören.",numCount:"Hochzählen",
+  numTip_de:"Im Deutschen kommen die Einer vor den Zehnern – 21 ist einundzwanzig – und Zahlen unter einer Million schreibt man in einem Wort.",
+  numTip_en:"Im britischen Englisch steht „and“ nach hundred: three hundred and forty-seven.",
+  numTip_es:"100 heißt cien, aber 101–199 beginnen mit ciento. 16–29 schreibt man in einem Wort: dieciséis, veintiuno.",
+  numTip_ne:"Jede Zahl bis 99 hat ein eigenes Wort. Große Zahlen zählt man in Lakh: 1,00,000 = एक लाख, eine Million = दस लाख.",
+  numTip_ko:"Das sind sinokoreanische Zahlen (일, 이, 삼 …) für Zahlen, Preise und Daten. 10.000 ist eine eigene Einheit: 만. Mit den koreanischen Zahlen (하나, 둘, 셋 …) zählt man Dinge und Stunden.",
+  games:"Vokabelspiele",gamesSub:"Spiel mit den Wörtern, die du lernst.",gSpeed:"Blitzrunde",gSpeedSub:"So viele Wörter wie möglich in 60 Sekunden.",gMemory:"Memory",gMemorySub:"Deck zwei Karten auf: Finde Wort und Bedeutung.",
+  gSpell:"Buchstabieren",gSpellSub:"Bring die Buchstaben in die richtige Reihenfolge.",gNumRush:"Zahlenjagd",gNumRushSub:"Hör eine Zahl, tippe sie – 60 Sekunden.",
+  best:"Rekord: {n}",score:"Punkte: {n}",timeLeft:"{s} s",playAgain:"Nochmal spielen",gameOver:"Zeit ist um!",newBest:"Neuer Rekord!",moves:"Züge: {n}",pairsFound:"Alle Paare in {n} Zügen gefunden!",spellDone:"{c} von {n} Wörtern richtig buchstabiert",skip:"Überspringen",
+  convs:"Gespräche",convsSub:"Unterhalte dich mit einer Muttersprachlerin – antworte per Auswahl oder sprich.",convYourTurn:"Deine Antwort",convSpeak:"Sprechen",convListening:"Ich höre zu …",convHeard:"Gehört: {t}",
+  convTryAgain:"Nicht ganz – versuch es nochmal.",convDone:"Gespräch geschafft!",convShowHint:"Übersetzungen zeigen",convRestart:"Neu beginnen",convNoSR:"Spracherkennung ist hier nicht verfügbar – wähle deine Antwort aus.",
+  grammar:"Grammatik",grammarSub:"Kurze Regeln, Tabellen und Übungen.",gRule:"Regel",gTable:"Tabelle",gPractice:"Üben",gDone:"{c} von {n} richtig",
+  mNumbers:"Zahlen: von 0 bis zu einer Million, jede Zahl von einer Muttersprachlerstimme gesprochen.",mGames:"Spiele: Blitzrunde, Memory, Buchstabieren und Zahlenjagd machen Wiederholung zum Vergnügen.",mConv:"Gespräche: echte Situationen, in denen du der Muttersprachlerin antwortest – per Auswahl oder gesprochen.",mGrammar:"Grammatik: eine kurze Regel und eine Tabelle, dann Übung – die Muster hinter den Wörtern.",
+ },
+ es: {
+  numTitle:"Números 0 – 1.000.000",numSub:"Cuenta, escucha y practica: del cero al millón.",numExplore:"Explorar",numPractice:"Practicar",numSteps:"Pasos hasta el millón",numStepsSub:"Miles, decenas de mil, centenas de mil: cada bloque es diez veces el anterior.",
+  numQHear:"Escucha y escribe el número",numQWord:"¿Qué número es?",numQDigits:"Elige las palabras de este número",numTypePh:"Número en cifras",numTap:"Toca un número para oírlo.",numCount:"Contar",
+  numTip_de:"En alemán las unidades van antes que las decenas (21 es einundzwanzig, «uno y veinte») y los números menores de un millón se escriben en una sola palabra.",
+  numTip_en:"En inglés británico se dice «and» después de hundred: three hundred and forty-seven.",
+  numTip_es:"100 es cien, pero de 101 a 199 se usa ciento. Del 16 al 29 se escriben en una palabra: dieciséis, veintiuno.",
+  numTip_ne:"Cada número hasta el 99 tiene su propia palabra. Los números grandes se cuentan en lakh: 1,00,000 = एक लाख; un millón = दस लाख.",
+  numTip_ko:"Estos son los números sinocoreanos (일, 이, 삼…) para números, precios y fechas. 10.000 es una unidad propia: 만. Los números coreanos nativos (하나, 둘, 셋…) sirven para contar cosas y horas.",
+  games:"Juegos de vocabulario",gamesSub:"Juega con las palabras que estás aprendiendo.",gSpeed:"Ronda rápida",gSpeedSub:"Todas las palabras que puedas en 60 segundos.",gMemory:"Memoria",gMemorySub:"Da la vuelta a dos cartas: encuentra la palabra y su significado.",
+  gSpell:"Deletrear",gSpellSub:"Pon las letras en el orden correcto.",gNumRush:"Carrera de números",gNumRushSub:"Oye un número y escríbelo: 60 segundos.",
+  best:"Récord: {n}",score:"Puntos: {n}",timeLeft:"{s} s",playAgain:"Jugar otra vez",gameOver:"¡Se acabó el tiempo!",newBest:"¡Nuevo récord!",moves:"Jugadas: {n}",pairsFound:"¡Todas las parejas en {n} jugadas!",spellDone:"{c} de {n} palabras bien deletreadas",skip:"Saltar",
+  convs:"Conversaciones",convsSub:"Habla con una hablante nativa: responde eligiendo o hablando.",convYourTurn:"Tu respuesta",convSpeak:"Decirlo",convListening:"Escuchando…",convHeard:"He oído: {t}",
+  convTryAgain:"Casi: inténtalo otra vez.",convDone:"¡Conversación completada!",convShowHint:"Mostrar traducciones",convRestart:"Empezar de nuevo",convNoSR:"El reconocimiento de voz no está disponible aquí: elige tu respuesta.",
+  grammar:"Gramática",grammarSub:"Reglas breves, tablas y ejercicios.",gRule:"Regla",gTable:"Tabla",gPractice:"Practicar",gDone:"{c} de {n} correctas",
+  mNumbers:"Números: del 0 al millón, cada uno pronunciado por una voz nativa.",mGames:"Juegos: ronda rápida, memoria, deletreo y carrera de números hacen divertido el repaso.",mConv:"Conversaciones: situaciones reales en las que respondes a la hablante nativa, eligiendo o hablando.",mGrammar:"Gramática: una regla breve y una tabla, luego práctica: los patrones detrás de las palabras.",
+ },
+ ne: {
+  numTitle:"अङ्क ० – १०,००,०००",numSub:"गन्नुहोस्, सुन्नुहोस् र अभ्यास गर्नुहोस् – शून्यदेखि दस लाखसम्म।",numExplore:"हेर्नुहोस्",numPractice:"अभ्यास",numSteps:"दस लाखसम्मका खुड्किला",numStepsSub:"हजार, दस हजार, लाख – हरेक खण्ड अघिल्लोभन्दा दस गुणा ठूलो।",
+  numQHear:"सुन्नुहोस् र अङ्क टाइप गर्नुहोस्",numQWord:"यो कुन अङ्क हो?",numQDigits:"यो अङ्कका लागि शब्द छान्नुहोस्",numTypePh:"अङ्कमा लेख्नुहोस्",numTap:"सुन्न अङ्कमा थिच्नुहोस्।",numCount:"गन्दै जानुहोस्",
+  numTip_de:"जर्मनमा एकाइ दहाइभन्दा अगाडि आउँछ – २१ = einundzwanzig ('एक र बीस') – र दस लाखभन्दा साना अङ्क एउटै शब्दमा लेखिन्छन्।",
+  numTip_en:"ब्रिटिश अङ्ग्रेजीमा hundred पछि 'and' भनिन्छ: three hundred and forty-seven।",
+  numTip_es:"१०० लाई cien भनिन्छ, तर १०१–१९९ मा ciento। १६–२९ एउटै शब्दमा लेखिन्छन्: dieciséis, veintiuno।",
+  numTip_ne:"९९ सम्मका हरेक अङ्कको आफ्नै शब्द छ। ठूला अङ्क लाखमा गनिन्छन्: १,००,००० = एक लाख, दस लाख = १० लाख।",
+  numTip_ko:"यी सिनो-कोरियाली अङ्क (일, 이, 삼…) हुन् – अङ्क, मूल्य र मितिका लागि। १०,००० एउटा छुट्टै एकाइ हो: 만। मौलिक कोरियाली अङ्क (하나, 둘, 셋…) वस्तु र घण्टा गन्न प्रयोग हुन्छन्।",
+  games:"शब्द खेल",gamesSub:"तपाईंले सिकिरहेका शब्दसँग खेल्नुहोस्।",gSpeed:"छिटो चरण",gSpeedSub:"६० सेकेन्डमा सकेजति धेरै शब्द।",gMemory:"स्मृति जोडी",gMemorySub:"दुई कार्ड पल्टाउनुहोस्: शब्द र अर्थ भेट्टाउनुहोस्।",
+  gSpell:"हिज्जे",gSpellSub:"अक्षरहरू सही क्रममा राख्नुहोस्।",gNumRush:"अङ्क दौड",gNumRushSub:"अङ्क सुन्नुहोस्, टाइप गर्नुहोस् – ६० सेकेन्ड।",
+  best:"उत्कृष्ट: {n}",score:"अङ्क: {n}",timeLeft:"{s} से",playAgain:"फेरि खेल्नुहोस्",gameOver:"समय सकियो!",newBest:"नयाँ उत्कृष्ट अङ्क!",moves:"{n} चाल",pairsFound:"{n} चालमा सबै जोडी भेटियो!",spellDone:"{n} मध्ये {c} शब्दको हिज्जे सही",skip:"छोड्नुहोस्",
+  convs:"संवाद",convsSub:"मातृभाषीसँग कुरा गर्नुहोस् – छानेर वा बोलेर जवाफ दिनुहोस्।",convYourTurn:"तपाईंको जवाफ",convSpeak:"बोल्नुहोस्",convListening:"सुनिरहेको छु…",convHeard:"सुनियो: {t}",
+  convTryAgain:"ठ्याक्कै होइन – फेरि प्रयास गर्नुहोस्।",convDone:"संवाद पूरा भयो!",convShowHint:"अनुवाद देखाउनुहोस्",convRestart:"फेरि सुरु गर्नुहोस्",convNoSR:"यहाँ बोली पहिचान उपलब्ध छैन – जवाफ छान्नुहोस्।",
+  grammar:"व्याकरण",grammarSub:"छोटा नियम, तालिका र अभ्यास।",gRule:"नियम",gTable:"तालिका",gPractice:"अभ्यास",gDone:"{n} मध्ये {c} सही",
+  mNumbers:"अङ्क: ० देखि दस लाखसम्म, हरेक अङ्क मातृभाषी आवाजमा।",mGames:"खेल: छिटो चरण, स्मृति, हिज्जे र अङ्क दौडले दोहोर्‍याइलाई रमाइलो बनाउँछन्।",mConv:"संवाद: वास्तविक परिस्थितिमा मातृभाषीलाई जवाफ – छानेर वा बोलेर।",mGrammar:"व्याकरण: छोटो नियम र तालिका, त्यसपछि अभ्यास – शब्दपछाडिका ढाँचा।",
+ },
+ ko: {
+  numTitle:"숫자 0 – 1,000,000",numSub:"세고, 듣고, 연습하기 – 0부터 백만까지.",numExplore:"둘러보기",numPractice:"연습",numSteps:"백만까지 단계별로",numStepsSub:"천, 만, 십만 – 각 단계는 앞 단계의 10배예요.",
+  numQHear:"듣고 숫자를 입력하세요",numQWord:"이 숫자는 무엇일까요?",numQDigits:"이 숫자에 맞는 말을 고르세요",numTypePh:"숫자로 입력",numTap:"숫자를 누르면 들을 수 있어요.",numCount:"차례로 세기",
+  numTip_de:"독일어는 일의 자리를 십의 자리보다 먼저 말해요 – 21은 einundzwanzig('하나 그리고 스물') – 그리고 백만 미만의 수는 한 단어로 써요.",
+  numTip_en:"영국 영어에서는 hundred 뒤에 'and'를 넣어요: three hundred and forty-seven.",
+  numTip_es:"100은 cien이지만 101–199는 ciento를 써요. 16–29는 한 단어로 써요: dieciséis, veintiuno.",
+  numTip_ne:"네팔어는 99까지 모든 수에 고유한 단어가 있어요. 큰 수는 라크(lakh)로 세요: 1,00,000 = एक लाख, 백만 = दस लाख.",
+  numTip_ko:"여기 나오는 숫자는 한자어 숫자(일, 이, 삼…)로 숫자, 가격, 날짜에 써요. 10,000은 '만'이라는 단위예요. 고유어 숫자(하나, 둘, 셋…)는 물건과 시간을 셀 때 써요.",
+  games:"단어 게임",gamesSub:"배우고 있는 단어로 놀아 보세요.",gSpeed:"스피드 라운드",gSpeedSub:"60초 안에 최대한 많은 단어를.",gMemory:"짝 맞추기",gMemorySub:"카드 두 장을 뒤집어 단어와 뜻을 찾으세요.",
+  gSpell:"철자 맞추기",gSpellSub:"글자를 올바른 순서로 놓으세요.",gNumRush:"숫자 러시",gNumRushSub:"숫자를 듣고 입력하세요 – 60초.",
+  best:"최고 기록: {n}",score:"점수: {n}",timeLeft:"{s}초",playAgain:"다시 하기",gameOver:"시간 종료!",newBest:"새 최고 기록!",moves:"{n}번 시도",pairsFound:"{n}번 만에 모든 짝을 찾았어요!",spellDone:"{n}개 중 {c}개 단어를 맞혔어요",skip:"건너뛰기",
+  convs:"대화",convsSub:"원어민과 대화해 보세요 – 골라서 또는 말해서 대답해요.",convYourTurn:"내 대답",convSpeak:"말하기",convListening:"듣는 중…",convHeard:"들은 말: {t}",
+  convTryAgain:"조금 달라요 – 다시 해 보세요.",convDone:"대화 완료!",convShowHint:"번역 보기",convRestart:"처음부터",convNoSR:"여기서는 음성 인식을 쓸 수 없어요 – 대답을 골라 주세요.",
+  grammar:"문법",grammarSub:"짧은 규칙, 표, 연습.",gRule:"규칙",gTable:"표",gPractice:"연습",gDone:"{n}개 중 {c}개 정답",
+  mNumbers:"숫자: 0부터 백만까지, 모든 숫자를 원어민 음성으로.",mGames:"게임: 스피드 라운드, 짝 맞추기, 철자 맞추기, 숫자 러시로 즐겁게 복습해요.",mConv:"대화: 실제 상황에서 원어민에게 대답해요 – 골라서 또는 말해서.",mGrammar:"문법: 짧은 규칙과 표, 그리고 연습 – 단어 뒤에 숨은 패턴.",
+ },
+};
+V13.en.convSRNote = "Speaking uses your browser's speech recognition, which may process audio online.";
+V13.de.convSRNote = "Zum Sprechen wird die Spracherkennung deines Browsers genutzt, die Audio online verarbeiten kann.";
+V13.es.convSRNote = "Para hablar se usa el reconocimiento de voz del navegador, que puede procesar el audio en línea.";
+V13.ne.convSRNote = "बोल्दा तपाईंको ब्राउजरको बोली पहिचान प्रयोग हुन्छ, जसले अडियो अनलाइन प्रशोधन गर्न सक्छ।";
+V13.ko.convSRNote = "말하기는 브라우저의 음성 인식을 사용하며, 음성이 온라인으로 처리될 수 있어요.";
+for (const l of Object.keys(V13)) Object.assign(S[l], V13[l]);

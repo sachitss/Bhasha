@@ -279,3 +279,122 @@ test("Glance mode shows words and exits on tap", async ({ page }) => {
   await page.locator("#glance").click();
   await expect(page.locator("#glance")).toHaveCount(0);
 });
+
+/* ---------- v1.3 ---------- */
+test("numbers: explore, any number to words, steps to a million, practice", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Learn", exact: true }).click();
+  await page.locator('.learn-nums [data-a="n_open"]').first().click();
+  await page.locator('[data-a="n_pick"][data-n="16"]').click();
+  await expect(page.locator(".num-sel")).toContainText("sechzehn");
+  await page.fill("#numIn", "347");
+  await expect(page.locator(".num-sel")).toContainText("dreihundertsiebenundvierzig");
+  await page.locator('[data-a="n_level"][data-l="n4"]').click();
+  await page.locator('[data-a="n_mode"][data-m="steps"]').click();
+  await expect(page.locator(".step")).toHaveCount(28);
+  await expect(page.locator(".ladder").last()).toContainText("eine Million");
+  await noHorizontalScroll(page);
+  await page.locator('[data-a="n_mode"][data-m="practice"]').click();
+  for (let i = 0; i < 10; i++) {
+    const q = await page.evaluate(() => { const q = window.__bhasha.ui.num.q; return { n: q.n, type: q.type }; });
+    if (q.type === "hear") { await page.fill("#numAns", String(q.n)); await page.locator('[data-a="n_check"]').click(); }
+    else await page.locator(`[data-a="n_opt"][data-n="${q.n}"]`).click();
+    await expect(page.locator(".fb.ok")).toBeVisible();
+    await page.locator('[data-a="n_next"]').click();
+  }
+  await expect(page.locator(".score")).toHaveText("10/10");
+});
+
+test("vocabulary games: speed round, memory, spelling, number rush", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Learn", exact: true }).click();
+  // Speed round: three right answers, then let the clock run out.
+  await page.locator('[data-a="gm_start"][data-g="speed"]').click();
+  for (let i = 0; i < 3; i++) {
+    const id = await page.evaluate(() => window.__bhasha.ui.game.q.id);
+    await page.locator(`[data-a="gm_speed"][data-id="${id}"]`).click();
+    await expect.poll(() => page.evaluate(() => window.__bhasha.ui.game.flash)).toBeNull();
+  }
+  await page.evaluate(() => { window.__bhasha.ui.game.left = 1; });
+  await expect(page.locator(".score")).toHaveText("3", { timeout: 4000 });
+  await expect(page.getByText(/New best score/)).toBeVisible();
+  // Memory: solve every pair.
+  await page.locator('[data-a="go"][data-r="learn"]').first().click();
+  await page.locator('[data-a="gm_start"][data-g="memory"]').click();
+  const cards = await page.evaluate(() => window.__bhasha.ui.game.cards.map((c) => c.id));
+  const done = new Set();
+  for (let i = 0; i < cards.length; i++) {
+    if (done.has(cards[i])) continue;
+    const j = cards.findIndex((c, k) => k !== i && c === cards[i]);
+    await page.locator(`[data-a="gm_flip"][data-i="${i}"]`).click();
+    await page.locator(`[data-a="gm_flip"][data-i="${j}"]`).click();
+    done.add(cards[i]);
+  }
+  await expect(page.getByText(/All pairs found in 6 moves/)).toBeVisible();
+  // Spelling: build two words, skip the rest.
+  await page.locator('[data-a="gm_start"][data-g="memory"]').count();
+  await page.locator('[data-a="go"][data-r="learn"]').first().click();
+  await page.locator('[data-a="gm_start"][data-g="spell"]').click();
+  for (let w = 0; w < 8; w++) {
+    if (await page.locator(".score").count()) break;
+    if (w < 2) {
+      const n = await page.evaluate(() => window.__bhasha.ui.game.letters.length);
+      for (let k = 0; k < n; k++) await page.locator(`[data-a="gm_letter"][data-i="${k}"]`).first().click();
+      await expect(page.locator(".fb.ok")).toBeVisible();
+    } else await page.locator('[data-a="gm_spellskip"]').click();
+    await page.locator('[data-a="gm_spellnext"]').click();
+  }
+  await expect(page.getByText(/2 of \d words spelled correctly/)).toBeVisible();
+  // Number rush.
+  await page.locator('[data-a="go"][data-r="learn"]').first().click();
+  await page.locator('[data-a="gm_start"][data-g="numrush"]').click();
+  for (let i = 0; i < 3; i++) {
+    const n = await page.evaluate(() => window.__bhasha.ui.game.n);
+    await page.fill("#rushIn", String(n));
+    await page.locator('[data-a="gm_rush"]').click();
+  }
+  await expect(page.locator(".fb.ok")).toBeVisible();
+  expect(await page.evaluate(() => window.__bhasha.ui.game.score)).toBe(3);
+  await noHorizontalScroll(page);
+});
+
+test("conversation: answer every turn, wrong answer is marked, completes", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Learn", exact: true }).click();
+  await page.locator('[data-a="cv_open"][data-c="c1"]').first().click();
+  await expect(page.locator(".bubble.them")).toHaveCount(1, { timeout: 4000 });
+  // One wrong answer first.
+  const wrong = await page.locator('[data-a="cv_pick"]').evaluateAll((els) => els.map((e) => e.dataset.l).find((id) => id !== "c1.1"));
+  await page.locator(`[data-a="cv_pick"][data-l="${wrong}"]`).click();
+  await expect(page.locator(".fb.no")).toBeVisible();
+  for (const i of [1, 3, 5, 7]) {
+    await page.locator(`[data-a="cv_pick"][data-l="c1.${i}"]`).click({ timeout: 8000 });
+  }
+  await expect(page.getByText("Conversation complete!")).toBeVisible({ timeout: 8000 });
+  await expect(page.locator(".bubble")).toHaveCount(8);
+  await expect(page.locator(".score")).toHaveText("3/4");
+  await page.locator("[data-cvhint]").check();
+  await expect(page.locator(".bubble.them").first()).toContainText("What would you like to drink?");
+  await noHorizontalScroll(page);
+});
+
+test("grammar: rule, table and a full practice round in German, Spanish and Korean", async ({ page }) => {
+  await page.goto("/");
+  for (const [target, topic] of [["de", "g_de_sein"], ["es", "g_es_art"], ["ko", "g_ko_part"]]) {
+    await page.evaluate((tl) => { const B = window.__bhasha; B.D.profile.target = tl; B.render(); }, target);
+    await page.getByRole("button", { name: "Learn", exact: true }).click();
+    await page.locator(`[data-a="gr_open"][data-g="${topic}"]`).click();
+    await expect(page.locator(".card").first()).toBeVisible();
+    if (topic === "g_de_sein") await expect(page.locator(".gtable")).toContainText("seid");
+    await page.locator('[data-a="gr_quiz"]').click();
+    const n = await page.evaluate(() => window.__bhasha.ui.gram.q.length);
+    expect(n).toBeGreaterThanOrEqual(6);
+    for (let i = 0; i < n; i++) {
+      const a = await page.evaluate(() => { const s = window.__bhasha.ui.gram; return s.q[s.i].a; });
+      await page.locator(`[data-a="gr_pick"][data-v="${a}"]`).click();
+      await page.locator('[data-a="gr_next"]').click();
+    }
+    await expect(page.locator(".score")).toHaveText(`${n}/${n}`);
+    await noHorizontalScroll(page);
+  }
+});

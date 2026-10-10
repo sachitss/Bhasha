@@ -1,11 +1,13 @@
 // Bhasha app: UI, state, audio and recording. Pure logic lives in core.js.
 import { ITEMS, BY, WORDS, ALL_PHR, ALL_TRV, READ, READ_BY } from "./content.js";
 import { S } from "./i18n.js";
+import { numParts, numWords, numRom, numDigits, neDigits, STEPS, NUM_LEVELS, practiceNumber } from "./numbers.js";
+import { DIALOGS, DIALOG_BY, LINE_BY, replyOptions, GRAMMAR, GRAMMAR_BY, grammarQuiz } from "./practice.js";
 import {
   DAY, LEVEL_RANK as lvlRank, applyGrade, itemState, nextInterval, formatInterval, planNumbers as planCore,
   buildSession as buildCore, coreWord, envelope, speechStats, expectedDuration, scoreRecording,
   voiceScore, isHighQualityVoice, hash, dayKey as todayKey, streakFrom, newProgress,
-  normPrio, SKILLS, TASK_SKILL, FOCUS_PRESETS, tokens, shuffledOrder, answerOk, usesWord, overlapScore, passiveDeck, lockTimes
+  normPrio, SKILLS, TASK_SKILL, FOCUS_PRESETS, tokens, shuffledOrder, answerOk, usesWord, overlapScore, passiveDeck, lockTimes, looseText
 } from "./core.js";
 
 /* ---------- State ---------- */
@@ -215,10 +217,11 @@ let route="home", ui={filter:"all",q:"",sit:"all",speakId:null,resetArm:false,se
 function render(){
   document.documentElement.lang=P().ui;
   const tabs=["home","learn","words","speak","travel","progress"];
-  document.getElementById("tabs").innerHTML=tabs.map(r=>`<button class="tab" data-a="go" data-r="${r}" ${route===r||(route==="session"&&r==="learn")?'aria-current="page"':""}>${ic(r)}<span>${t(r)}</span></button>`).join("");
+  document.getElementById("tabs").innerHTML=tabs.map(r=>`<button class="tab" data-a="go" data-r="${r}" ${route===r||(["session","numbers","game","conv","grammar"].includes(route)&&r==="learn")?'aria-current="page"':""}>${ic(r)}<span>${t(r)}</span></button>`).join("");
   document.getElementById("pairBtn").innerHTML=`<span>${t("lang_"+P().known)} → ${t("lang_"+P().target)}</span><span class="av">${esc((P().name||"·").slice(0,1).toUpperCase())}</span>`;
   const m=document.getElementById("main");
-  m.innerHTML=({home:vHome,learn:vLearn,session:vSession,words:vWords,speak:vSpeak,travel:vTravel,progress:vProgress})[route]()+poweredBy();
+  if(route!=="game")stopGameTimer();
+  m.innerHTML=({home:vHome,learn:vLearn,session:vSession,words:vWords,speak:vSpeak,travel:vTravel,progress:vProgress,numbers:vNumbers,game:vGame,conv:vConv,grammar:vGrammar})[route]()+poweredBy();
   afterRender();
 }
 function afterRender(){document.querySelectorAll("canvas.wave").forEach(c=>{const h=(REC.hist[c.dataset.id]||[])[0]; if(h&&h.an)drawWave(c,h.an.env,h.an.exp)})}
@@ -272,10 +275,11 @@ function vLearn(){
     return `<button class="li" data-a="topic" data-t="${tp}"><div class="main"><b>${t("t_"+tp)}</b><div class="sub">${ws.slice(0,3).map(w=>esc(w[P().target])).join(" · ")}</div></div><span class="small muted" style="font-variant-numeric:tabular-nums">${started}/${ws.length}</span><span class="pill new">${t("lvl_"+ws[0].level)}</span></button>`}).join("")}</div></section>
   <section class="stack"><div class="eyebrow">${ic("read")} ${t("readTexts")}</div><div class="list">${READ.map(r=>{const d=(D.reads[P().target]||{})[r.id];
     return `<button class="li" data-a="readOpen" data-r="${r.id}"><div class="main"><b lang="${P().target}">${esc(r.title[P().target])}</b><div class="sub">${esc(r.title[P().known])}</div></div>${d?`<span class="small muted">✓ ${d.c}/${d.n}</span>`:""}<span class="pill new">${t("lvl_"+r.level)}</span></button>`}).join("")}</div></section>
+  ${learnExtras()}
   ${methodsBox()}`;
 }
 function methodsBox(){
-  return `<details class="card methods"><summary><b>${t("methods")}</b></summary><ul>${["mVocab","mListen","mRead","mSpeak","mWrite","mContext","mWide","mNotebook","mRecall"].map(k=>`<li>${t(k)}</li>`).join("")}</ul></details>`;
+  return `<details class="card methods"><summary><b>${t("methods")}</b></summary><ul>${["mVocab","mListen","mRead","mSpeak","mWrite","mContext","mWide","mNotebook","mRecall","mNumbers","mGames","mConv","mGrammar"].map(k=>`<li>${t(k)}</li>`).join("")}</ul></details>`;
 }
 
 /* ---- Session ---- */
@@ -460,11 +464,13 @@ function detailSheet(id){
 /* ---- Speak ---- */
 function vSpeak(){
   const id=ui.speakId||wotd().id, i=BY[id], tl=P().target;
+  const convCard=`<section class="card stack"><div class="row between"><div><div class="eyebrow">${t("convs")}</div><p class="small muted">${t("convsSub")}</p></div></div><div class="chips">${DIALOGS.map(d=>`<button class="chip" data-a="cv_open" data-c="${d.id}">${esc(d.title[P().ui]||d.title.en)}</button>`).join("")}</div></section>`;
   const picks=[...new Set([wotd().id,...D.favs,...Object.keys(prog()).filter(k=>BY[k]&&(prog()[k].bad>0))])].filter(k=>k!==id).slice(0,8);
   const fill=WORDS.filter(w=>!picks.includes(w.id)&&w.id!==id&&lvlRank[w.level]<=lvlRank[P().level]).slice(0,Math.max(0,8-picks.length)).map(w=>w.id);
   return `<section class="card stack">${target(i)}<p style="font-size:18px">${known(i)}</p>
     ${i.ex?`<div class="ex"><div class="t" lang="${tl}">${esc(i.ex[tl])}</div><button class="btn sm" style="margin-top:6px" data-a="sayEx" data-id="${id}">${ic("play")}${t("example")}</button></div>`:""}
     ${recorder(id)}</section>
+   ${convCard}
    <section class="stack"><div class="eyebrow">${t("pick")}</div><div class="chips" style="flex-wrap:wrap">${picks.concat(fill).map(k=>`<button class="chip" data-a="speakItem" data-id="${k}" lang="${tl}">${esc(BY[k][tl])}</button>`).join("")}</div></section>`;
 }
 
@@ -630,6 +636,253 @@ function voiceFields(){
 }
 const TESTS={es:"¡Buenos días! Estoy aprendiendo español. ¿Cómo está usted?",de:"Guten Morgen! Ich lerne gerade Deutsch. Wie geht es Ihnen?",en:"Good morning! I'm learning English. How are you?",ne:"नमस्ते! म नेपाली सिक्दैछु। तपाईंलाई कस्तो छ?",ko:"안녕하세요! 저는 한국어를 배우고 있어요. 어떻게 지내세요?"};
 
+/* =====================================================================
+   v1.3 – Numbers, vocabulary games, conversations, grammar
+   ===================================================================== */
+// Play several recorded clips one after another (number parts); falls back to the device voice for the whole text.
+TTS.seq=function(keys,text,lang,onend){
+  this.stop(); const urls=keys.map(k=>audioUrl(lang,k));
+  if(!urls.length||urls.some(u=>!u)){this.device(text,lang,1); if(onend)setTimeout(onend,1400+text.length*60); return}
+  let i=0; const next=()=>{if(i>=urls.length){onend&&onend();return} const a=new Audio(urls[i++]); player=a; a.onended=next; a.onerror=next; a.play().catch(()=>{this.device(text,lang,1); onend&&setTimeout(onend,1500)})}; next();
+};
+const sayNum=(n,onend)=>{const tl=P().target; TTS.seq(numParts(n,tl).map(p=>"nm."+p.k),numWords(n,tl),tl,onend)};
+const numBig=n=>{const tl=P().target; return `<span class="num-d">${esc(numDigits(n,tl))}</span>${tl==="ne"?` <span class="num-d muted">${neDigits(numDigits(n,tl))}</span>`:""}`};
+const numWordHtml=n=>{const tl=P().target, r=ROM_LANGS.includes(tl)&&P().rom?numRom(n,tl):""; return `<div class="word md" lang="${tl}">${esc(numWords(n,tl))}</div>${r?`<div class="rom">${esc(r)}</div>`:""}`};
+const levelLabel=L=>`${numDigits(L.from,P().target)} – ${numDigits(L.to,P().target)}`;
+const gameStore=()=>(D.games=D.games||{});
+function bestOf(g){return (gameStore()[g]||{})[P().target]||0}
+// Memory: fewer moves is better; other games: higher score is better.
+function setBest(g,v){const s=gameStore(); s[g]=s[g]||{}; const old=s[g][P().target]||0; if(!old||(g==="memory"?v<old:v>old)){s[g][P().target]=v; persist(); return true} return false}
+const backBtn=()=>`<button class="btn sm" data-a="go" data-r="learn">← ${t("learn")}</button>`;
+
+/* ---------- Learn tab: the new sections ---------- */
+function learnExtras(){
+  const tl=P().target, convDone=(D.convs&&D.convs[tl])||{}, topics=GRAMMAR.filter(g=>g.lang===tl);
+  return `<section class="card stack learn-nums"><div class="row between"><div><div class="eyebrow">${t("numTitle")}</div><p class="small muted">${t("numSub")}</p></div><button class="btn primary" data-a="n_open">${t("numExplore")}</button></div>
+    <div class="chips">${NUM_LEVELS.map(L=>`<button class="chip" data-a="n_open" data-l="${L.id}">${levelLabel(L)}</button>`).join("")}</div></section>
+   <section class="stack"><div class="eyebrow">${t("games")}</div><p class="small muted">${t("gamesSub")}</p><div class="game-grid">
+    ${[["speed","gSpeed","gSpeedSub","⚡"],["memory","gMemory","gMemorySub","🃏"],["spell","gSpell","gSpellSub","🔤"],["numrush","gNumRush","gNumRushSub","🔢"]].map(([g,a,b,e])=>`<button class="game-card" data-a="gm_start" data-g="${g}"><span class="gi" aria-hidden="true">${e}</span><b>${t(a)}</b><span class="small muted">${t(b)}</span>${bestOf(g)?`<span class="small">${t("best",{n:bestOf(g)})}</span>`:""}</button>`).join("")}</div></section>
+   <section class="stack"><div class="eyebrow">${t("convs")}</div><p class="small muted">${t("convsSub")}</p><div class="list">${DIALOGS.map(d=>`<button class="li" data-a="cv_open" data-c="${d.id}"><div class="main"><b>${esc(d.title[P().ui]||d.title.en)}</b><div class="sub" lang="${tl}">${esc(d.lines[0][tl])}</div></div>${convDone[d.id]?`<span class="small muted">✓</span>`:""}<span class="pill new">${t("lvl_"+d.level)}</span></button>`).join("")}</div></section>
+   <section class="stack"><div class="eyebrow">${t("grammar")} · ${t("lang_"+tl)}</div><p class="small muted">${t("grammarSub")}</p><div class="list">${topics.map(g=>{const r=(D.gram&&D.gram[g.id]); return `<button class="li" data-a="gr_open" data-g="${g.id}"><div class="main"><b>${esc(g.title[P().ui]||g.title.en)}</b><div class="sub">${esc((g.rule[P().ui]||g.rule.en).slice(0,70))}…</div></div>${r?`<span class="small muted">${r.c}/${r.n}</span>`:""}</button>`}).join("")}</div></section>`;
+}
+
+/* ---------- Numbers ---------- */
+function vNumbers(){
+  const nm=ui.num||(ui.num={level:"n1",mode:"explore",sel:null}), tl=P().target, L=NUM_LEVELS.find(l=>l.id===nm.level);
+  const head=`<div class="row between">${backBtn()}<span class="eyebrow">${t("numTitle")}</span></div>
+   <div class="chips" role="group">${NUM_LEVELS.map(x=>`<button class="chip" data-a="n_level" data-l="${x.id}" aria-pressed="${nm.level===x.id}">${levelLabel(x)}</button>`).join("")}</div>
+   <div class="seg" role="group"><button data-a="n_mode" data-m="explore" aria-pressed="${nm.mode==="explore"}">${t("numExplore")}</button>${nm.level==="n4"?`<button data-a="n_mode" data-m="steps" aria-pressed="${nm.mode==="steps"}">${t("numSteps")}</button>`:""}<button data-a="n_mode" data-m="practice" aria-pressed="${nm.mode==="practice"}">${t("numPractice")}</button></div>
+   <p class="note">${t("numTip_"+tl)}</p>`;
+  let body="";
+  if(nm.mode==="explore"){
+    const list=nm.level==="n1"?range(0,20):nm.level==="n2"?range(21,100):nm.level==="n3"?range(1,10).map(x=>x*100).concat([101,115,250,347,512,999]):STEPS.slice(0,10).concat([20000,50000,100000,500000,1000000]);
+    const sel=nm.sel??list[0];
+    body=`<section class="card stack num-sel" aria-live="polite"><div class="row between"><div>${numBig(sel)}</div><button class="btn gold" data-a="n_say" data-n="${sel}">${ic("play")}${t("listen")}</button></div>${numWordHtml(sel)}</section>
+     <p class="small muted">${t("numTap")}</p>
+     <div class="num-grid">${list.map(n=>`<button class="num-tile ${n===sel?"on":""}" data-a="n_pick" data-n="${n}">${esc(numDigits(n,tl))}</button>`).join("")}</div>
+     <div class="field"><label for="numIn">${t("numTypePh")} (0 – ${numDigits(1000000,tl)})</label><input id="numIn" class="input" inputmode="numeric" autocomplete="off" placeholder="347" value="${nm.typed??""}"></div>`;
+  }
+  if(nm.mode==="steps"){
+    const blocks=[STEPS.slice(0,10),STEPS.slice(10,19),STEPS.slice(19)];
+    body=`<p class="small muted">${t("numStepsSub")}</p>${blocks.map((b,bi)=>`<section class="card stack"><div class="row between"><b>${esc(numDigits(b[0],tl))} → ${esc(numDigits(b[b.length-1],tl))}</b><button class="btn sm" data-a="n_count" data-b="${bi}">${ic("play")}${t("numCount")}</button></div>
+      <div class="ladder">${b.map(n=>`<button class="step ${nm.hl===n?"on":""}" data-a="n_pick" data-n="${n}"><span class="num-d">${esc(numDigits(n,tl))}</span><span lang="${tl}">${esc(numWords(n,tl))}</span></button>`).join("")}</div></section>`).join("")}`;
+  }
+  if(nm.mode==="practice")body=numPractice(nm,L);
+  return head+body;
+}
+const range=(a,b)=>Array.from({length:b-a+1},(_,i)=>a+i);
+function numQuestion(level){
+  const n=practiceNumber(level), type=["hear","word","digits"][Math.floor(Math.random()*3)];
+  const near=new Set([n]); const cand=[n+1,n-1,n+10,n-10,n+100,n-100,Number(String(n).split("").reverse().join("")),n*2,Math.floor(n/2)].filter(x=>x>=0&&x<=1e6&&x!==n);
+  while(near.size<4&&cand.length)near.add(cand.splice(Math.floor(Math.random()*cand.length),1)[0]);
+  while(near.size<4)near.add(practiceNumber(level));
+  return {n,type,opts:shuffle([...near])};
+}
+function numPractice(nm,L){
+  const tl=P().target, q=nm.q||(nm.q=Object.assign({i:0,ok:0,total:10},numQuestion(L.id)));
+  if(q.i>=q.total)return `<section class="card stack" style="text-align:center;align-items:center"><div class="score">${q.ok}/${q.total}</div><p>${t("gDone",{c:q.ok,n:q.total})}</p><button class="btn primary" data-a="n_again">${t("playAgain")}</button></section>`;
+  let body=`<div class="row between"><span class="small muted">${q.i+1} / ${q.total}</span><span class="small muted">✓ ${q.ok}</span></div>`;
+  if(q.type==="hear"){
+    body+=`<p class="muted">${t("numQHear")}</p><div class="row"><button class="btn gold" data-a="n_say" data-n="${q.n}">${ic("play")}${t("listen")}</button></div>
+     <input id="numAns" class="input" inputmode="numeric" autocomplete="off" placeholder="${t("numTypePh")}" ${q.done?"disabled":""} value="${esc(q.typed||"")}">
+     ${q.done?"":`<button class="btn primary" data-a="n_check">${t("check")}</button>`}`;
+  }
+  if(q.type==="word")body+=`<p class="muted">${t("numQWord")}</p>${numWordHtml(q.n)}<div class="opts">${q.opts.map(o=>`<button class="opt ${q.done?(o===q.n?"ok":o===q.pick?"no":""):""}" data-a="n_opt" data-n="${o}" ${q.done?"disabled":""}>${esc(numDigits(o,tl))}</button>`).join("")}</div>`;
+  if(q.type==="digits")body+=`<p class="muted">${t("numQDigits")}</p><div>${numBig(q.n)}</div><div class="opts one">${q.opts.map(o=>`<button class="opt ${q.done?(o===q.n?"ok":o===q.pick?"no":""):""}" data-a="n_opt" data-n="${o}" ${q.done?"disabled":""} lang="${tl}">${esc(numWords(o,tl))}</button>`).join("")}</div>`;
+  if(q.done)body+=`<div class="fb ${q.right?"ok":"no"}" role="status"><b>${q.right?"✓ "+t("correct"):"✗ "+t("wrong")}</b> · ${esc(numDigits(q.n,tl))} = <span lang="${tl}">${esc(numWords(q.n,tl))}</span></div><button class="btn primary block" data-a="n_next">${t("next")}</button>`;
+  return `<section class="card task stack">${body}</section>`;
+}
+function numAnswer(right){
+  const q=ui.num.q; q.done=true; q.right=right; if(right)q.ok++; addXP(right?8:2,right,q.type==="hear"?"listen":"read"); if(q.type!=="hear"||!right)sayNum(q.n); render();
+}
+
+/* ---------- Games ---------- */
+function gamePool(){
+  const tl=P().target, pr=prog();
+  const ok=i=>i[tl]&&knownText(i)&&i.kind!=="phrase";
+  const seen=allItems().filter(i=>ok(i)&&pr[i.id]&&pr[i.id].seen);
+  const lvl=WORDS.filter(i=>ok(i)&&lvlRank[i.level]<=lvlRank[P().level]);
+  return seen.length>=12?seen:seen.concat(lvl.filter(i=>!seen.includes(i))).slice(0,Math.max(40,seen.length));
+}
+let gTimer=null;
+function stopGameTimer(){clearInterval(gTimer); gTimer=null}
+function startGame(g){
+  stopGameTimer(); const pool=shuffle(gamePool()), tl=P().target;
+  const G={g,score:0,left:60,over:false};
+  if(g==="speed"){G.pool=pool; G.q=speedQ(G)}
+  if(g==="memory"){const ids=pool.filter((x,i,a)=>a.findIndex(y=>y[tl]===x[tl]||knownText(y)===knownText(x))===i).slice(0,6).map(x=>x.id); G.cards=shuffle(ids.flatMap(id=>[{id,s:"t"},{id,s:"k"}])); G.open=[]; G.found=[]; G.moves=0}
+  if(g==="spell"){G.words=pool.filter(i=>{const w=spellWord(i); const n=graphemes(w).length; return !/\s/.test(w)&&n>=(tl==="ko"?2:3)&&n<=10}).slice(0,8); G.i=0; G.ok=0; spellSetup(G)}
+  if(g==="numrush"){G.n=practiceNumber(lvlRank[P().level]>=1?"n3":"n2"); setTimeout(()=>sayNum(G.n),300)}
+  ui.game=G; route="game"; render(); window.scrollTo(0,0);
+  if(g==="speed"||g==="numrush")gTimer=setInterval(()=>{if(route!=="game"||!ui.game||ui.game!==G){stopGameTimer();return} G.left--; const el=document.getElementById("gTime"); if(el)el.textContent=t("timeLeft",{s:G.left}); if(G.left<=0){endGame(G)}},1000);
+}
+function endGame(G){stopGameTimer(); G.over=true; G.newBest=setBest(G.g,G.g==="memory"?G.moves:G.score); addXP(Math.min(30,G.score*2||5),null); render()}
+function speedQ(G){const it=G.pool[Math.floor(Math.random()*G.pool.length)]; const wrong=shuffle(G.pool.filter(x=>x.id!==it.id&&knownText(x)!==knownText(it))).slice(0,3); return {id:it.id,opts:shuffle([it,...wrong]).map(x=>x.id)}}
+const graphemes=s=>{try{return [...new Intl.Segmenter(undefined,{granularity:"grapheme"}).segment(s)].map(x=>x.segment)}catch(e){return [...s]}};
+const spellWord=i=>{const tl=P().target; return tl==="de"||tl==="es"?coreWord(i[tl]):i[tl].replace(/^to /,"")};
+function spellSetup(G){const w=G.words[G.i]; if(!w)return; const gs=graphemes(spellWord(w)); G.letters=gs; G.perm=shuffledOrder(gs.length); G.ans=[]; G.res=null}
+function vGame(){
+  const G=ui.game; if(!G)return vLearn(); const tl=P().target;
+  const titles={speed:"gSpeed",memory:"gMemory",spell:"gSpell",numrush:"gNumRush"};
+  const head=`<div class="row between">${backBtn()}<b>${t(titles[G.g])}</b>${G.g==="speed"||G.g==="numrush"?`<span class="pill learning" id="gTime">${t("timeLeft",{s:G.left})}</span>`:""}</div>`;
+  if(G.over)return head+`<section class="card stack" style="text-align:center;align-items:center;padding-block:28px"><div class="eyebrow">${G.g==="memory"?t("pairsFound",{n:G.moves}):G.g==="spell"?t("spellDone",{c:G.ok,n:G.words.length}):t("gameOver")}</div>
+    <div class="score">${G.g==="memory"?G.moves:G.score}</div>${G.newBest?`<p class="fb ok">🏆 ${t("newBest")}</p>`:`<p class="small muted">${t("best",{n:bestOf(G.g)})}</p>`}
+    <button class="btn primary" data-a="gm_start" data-g="${G.g}">${t("playAgain")}</button></section>`;
+  if(G.g==="speed"){const it=BY[G.q.id];
+    return head+`<section class="card task stack"><div class="row between"><span class="small muted">${t("score",{n:G.score})}</span><span class="small muted">${t("best",{n:bestOf("speed")})}</span></div>${target(it)}
+     <div class="opts">${G.q.opts.map(id=>`<button class="opt ${G.flash&&G.flash.id===id?G.flash.cls:""}" data-a="gm_speed" data-id="${id}">${esc(knownText(BY[id]))}</button>`).join("")}</div></section>`}
+  if(G.g==="memory")return head+`<p class="small muted">${t("moves",{n:G.moves})}</p><div class="mem-grid">${G.cards.map((c,i)=>{const up=G.open.includes(i)||G.found.includes(c.id); const it=BY[c.id];
+    return `<button class="mem ${up?"up":""} ${G.found.includes(c.id)?"done":""}" data-a="gm_flip" data-i="${i}" ${G.found.includes(c.id)?"disabled":""} aria-label="${up?esc(c.s==="t"?it[tl]:knownText(it)):"?"}">${up?`<span ${c.s==="t"?`lang="${tl}"`:""}>${esc(c.s==="t"?it[tl]:knownText(it))}</span>`:"?"}</button>`}).join("")}</div>`;
+  if(G.g==="spell"){const w=G.words[G.i]; if(!w)return head;
+    return head+`<section class="card task stack"><div class="row between"><span class="small muted">${G.i+1} / ${G.words.length}</span><span class="small muted">✓ ${G.ok}</span></div>
+     <p style="font-size:20px">${esc(knownText(w))}</p><div class="row"><button class="btn sm" data-a="say" data-id="${w.id}">${ic("play")}${t("listen")}</button></div>
+     <div class="order-ans spell" lang="${tl}">${G.ans.map(i=>`<button class="tok" data-a="gm_unletter" data-i="${i}" ${G.res?"disabled":""}>${esc(G.letters[i])}</button>`).join("")||`<span class="small muted">…</span>`}</div>
+     <div class="order-pool" lang="${tl}">${G.perm.filter(i=>!G.ans.includes(i)).map(i=>`<button class="tok" data-a="gm_letter" data-i="${i}" ${G.res?"disabled":""}>${esc(G.letters[i])}</button>`).join("")}</div>
+     ${G.res?`<div class="fb ${G.res==="ok"?"ok":"no"}" role="status"><b>${G.res==="ok"?"✓ "+t("correct"):"✗ "+t("wrong")}</b> · <span lang="${tl}">${esc(w[tl])}</span></div><button class="btn primary block" data-a="gm_spellnext">${t("next")}</button>`
+       :`<div class="row"><button class="btn" data-a="gm_spellclear">${t("clear")}</button><button class="btn" data-a="gm_spellskip">${t("skip")}</button></div>`}</section>`}
+  if(G.g==="numrush")return head+`<section class="card task stack"><div class="row between"><span class="small muted">${t("score",{n:G.score})}</span><span class="small muted">${t("best",{n:bestOf("numrush")})}</span></div>
+    <p class="muted">${t("numQHear")}</p><div class="row"><button class="btn gold" data-a="n_say" data-n="${G.n}">${ic("play")}${t("listen")}</button></div>
+    <input id="rushIn" class="input" inputmode="numeric" autocomplete="off" placeholder="${t("numTypePh")}">${G.last?`<div class="fb ${G.last.ok?"ok":"no"}">${G.last.ok?"✓":"✗"} ${esc(numDigits(G.last.n,tl))} = <span lang="${tl}">${esc(numWords(G.last.n,tl))}</span></div>`:""}
+    <button class="btn primary" data-a="gm_rush">${t("check")}</button></section>`;
+  return head;
+}
+
+/* ---------- Conversations ---------- */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition||null;
+function convStart(id){const d=DIALOG_BY[id]; ui.conv={id,i:0,miss:0,spoken:0,hint:false,wrong:[],opts:null}; route="conv"; render(); window.scrollTo(0,0); convBot()}
+function convBot(){const c=ui.conv, d=DIALOG_BY[c.id], l=d.lines[c.i]; if(!l)return; const tl=P().target;
+  if(l.who==="b"){setTimeout(()=>{if(ui.conv!==c)return; TTS.speak(l[tl],tl,1,l.id)},250); c.i++; c.opts=null; c.wrong=[]; setTimeout(()=>{if(ui.conv===c&&route==="conv"){render(); scrollChat()}},700)}}
+function scrollChat(){const el=document.querySelector(".chat-end"); if(el)el.scrollIntoView({block:"end",behavior:"smooth"})}
+function vConv(){
+  const c=ui.conv; if(!c)return vLearn(); const d=DIALOG_BY[c.id], tl=P().target, kn=P().known;
+  const shown=d.lines.slice(0,c.i), cur=d.lines[c.i], done=c.i>=d.lines.length;
+  const bubble=l=>`<div class="bubble ${l.who==="b"?"them":"me"}"><div lang="${tl}">${esc(l[tl])}</div>${romOf(l,tl)?`<div class="rom">${esc(romOf(l,tl))}</div>`:""}${c.hint?`<div class="small muted" lang="${kn}">${esc(l[kn])}</div>`:""}
+    <button class="btn sm icon-btn" data-a="cv_say" data-l="${l.id}" aria-label="${t("listen")}">${ic("play")}</button></div>`;
+  let turn="";
+  if(done){turn=`<section class="card stack" style="text-align:center;align-items:center"><div class="eyebrow">${t("convDone")}</div><div class="score">${Math.max(0,d.lines.filter(l=>l.who==="m").length-c.miss)}/${d.lines.filter(l=>l.who==="m").length}</div>
+     <div class="row"><button class="btn" data-a="cv_open" data-c="${d.id}">${t("convRestart")}</button><button class="btn primary" data-a="go" data-r="learn">${t("learn")}</button></div></section>`}
+  else if(cur.who==="m"){if(!c.opts)c.opts=replyOptions(d.id,c.i);
+    turn=`<section class="card stack"><div class="eyebrow">${t("convYourTurn")}</div><div class="opts one">${c.opts.map(id=>{const l=LINE_BY[id]; return `<button class="opt ${c.wrong.includes(id)?"no":""}" data-a="cv_pick" data-l="${id}" ${c.wrong.includes(id)?"disabled":""} lang="${tl}">${esc(l[tl])}${romOf(l,tl)?`<div class="rom">${esc(romOf(l,tl))}</div>`:""}${c.hint?`<div class="small muted" lang="${kn}">${esc(l[kn])}</div>`:""}</button>`}).join("")}</div>
+     ${c.msg?`<p class="fb no" role="status">${esc(c.msg)}</p>`:""}
+     ${SR&&!isMobileApp?`<button class="btn gold" data-a="cv_speak">${ic("mic")}${c.listening?t("convListening"):t("convSpeak")}</button><p class="small muted">${t("convSRNote")}</p>`:`<p class="small muted">${t("convNoSR")}</p>`}</section>`}
+  return `<div class="row between">${backBtn()}<label class="row small" style="gap:6px"><input type="checkbox" data-cvhint ${c.hint?"checked":""} style="width:18px;height:18px;accent-color:var(--brand)">${t("convShowHint")}</label></div>
+   <h2 class="word md" style="font-size:22px">${esc(d.title[P().ui]||d.title.en)}</h2>
+   <div class="chat" aria-live="polite">${shown.map(bubble).join("")}<div class="chat-end"></div></div>${turn}`;
+}
+function convAnswer(lineId,spoken){
+  const c=ui.conv, d=DIALOG_BY[c.id], cur=d.lines[c.i], tl=P().target;
+  if(lineId===cur.id){addXP(spoken?12:8,true,spoken?"speak":"listen"); if(spoken)c.spoken++; c.msg=""; TTS.speak(cur[tl],tl,1,cur.id); c.i++; c.opts=null; c.wrong=[];
+    if(c.i>=d.lines.length){const cv=(D.convs=D.convs||{}); (cv[tl]=cv[tl]||{})[d.id]={at:Date.now(),miss:c.miss}; persist()}
+    render(); scrollChat(); setTimeout(()=>{if(ui.conv===c)convBot()},Math.min(2600,900+cur[tl].length*45));
+  } else {c.miss++; addXP(1,false,spoken?"speak":"listen"); if(!spoken)c.wrong.push(lineId); c.msg=t("convTryAgain"); render()}
+}
+function convListen(){
+  const c=ui.conv; if(!SR||c.listening)return; const d=DIALOG_BY[c.id], cur=d.lines[c.i], tl=P().target;
+  const r=new SR(); r.lang=LOCALE[tl]; r.interimResults=false; r.maxAlternatives=3; c.listening=true; render();
+  r.onresult=e=>{const alts=[...e.results[0]].map(x=>x.transcript); const best=alts.map(a=>({a,s:Math.max(overlapScore(a,cur[tl]),looseText(a)===looseText(cur[tl])?1:0)})).sort((x,y)=>y.s-x.s)[0];
+    c.listening=false; if(best.s>=0.5)convAnswer(cur.id,true); else{c.miss++; c.msg=t("convHeard",{t:best.a})+" · "+t("convTryAgain"); render()}};
+  r.onerror=()=>{c.listening=false; render()}; r.onend=()=>{if(c.listening){c.listening=false; render()}};
+  try{r.start()}catch(e){c.listening=false; render()}
+}
+
+/* ---------- Grammar ---------- */
+function vGrammar(){
+  const s=ui.gram; if(!s)return vLearn(); const g=GRAMMAR_BY[s.id], tl=P().target, uiL=P().ui;
+  const romW=w=>g.rom&&P().rom?g.rom[w]:"";
+  const ck=(i,r)=>g.quiz==="pairs"?(i===1?`${g.id}.${r+1}`:""):`${g.id}.${r}.${i}`;
+  const cell=(x,i,r)=>`<td lang="${tl}">${i||g.quiz==="pairs"?`<button class="cellbtn" data-a="gr_say" data-k="${ck(i,r)}" data-t="${esc(x)}">${esc(x)}</button>`:esc(x)}${romW(x)?`<div class="rom">${esc(romW(x))}</div>`:""}</td>`;
+  const table=g.table?`<div class="gtable-wrap"><table class="gtable"><thead><tr>${(g.quiz==="pairs"?g.table[0].slice(0,2):g.table[0]).map(h=>`<th lang="${tl}">${esc(h)}${romW(h)?`<div class="rom">${esc(romW(h))}</div>`:""}</th>`).join("")}</tr></thead>
+    <tbody>${g.table.slice(1).map((r,ri)=>`<tr>${(g.quiz==="pairs"?r.slice(0,2):r).map((x,i)=>cell(x,i,ri)).join("")}</tr>`).join("")}</tbody></table></div>`:"";
+  let quiz="";
+  if(s.q){const q=s.q[s.i];
+    if(!q)quiz=`<section class="card stack" style="text-align:center;align-items:center"><div class="score">${s.ok}/${s.q.length}</div><p>${t("gDone",{c:s.ok,n:s.q.length})}</p><button class="btn primary" data-a="gr_quiz">${t("playAgain")}</button></section>`;
+    else quiz=`<section class="card task stack"><div class="row between"><span class="small muted">${s.i+1} / ${s.q.length}</span><span class="small muted">✓ ${s.ok}</span></div>
+      <div class="word md" lang="${tl}">${esc(q.q)}</div>
+      <div class="opts">${q.o.map(o=>`<button class="opt ${s.ans!==undefined?(o===q.a?"ok":o===s.ans?"no":""):""}" data-a="gr_pick" data-v="${esc(o)}" ${s.ans!==undefined?"disabled":""} lang="${tl}">${esc(o)}${q.o.every(x=>romW(x))?`<div class="rom">${esc(romW(o))}</div>`:""}</button>`).join("")}</div>
+      ${s.ans!==undefined?`<div class="fb ${s.ans===q.a?"ok":"no"}" role="status"><b>${s.ans===q.a?"✓ "+t("correct"):"✗ "+t("wrong")}</b> · <span lang="${tl}">${esc(q.q.replace("___",q.a).replace(/\s*\(.*\)$/,"").replace(" → "," → "))}</span></div><button class="btn primary block" data-a="gr_next">${t("next")}</button>`:""}</section>`}
+  return `<div class="row between">${backBtn()}<span class="eyebrow">${t("grammar")}</span></div>
+   <h2 class="word md" style="font-size:22px">${esc(g.title[uiL]||g.title.en)}</h2>
+   <section class="card stack"><div class="eyebrow">${t("gRule")}</div><p>${esc(g.rule[uiL]||g.rule.en)}</p>${table?`<div class="eyebrow">${t("gTable")}</div>${table}`:""}</section>
+   ${quiz||`<button class="btn primary block" data-a="gr_quiz">${t("gPractice")}</button>`}`;
+}
+function sayGrammar(q){const tl=P().target; if(q.item)TTS.speak(BY[q.item][tl],tl,1,q.item); else TTS.speak(q.say,tl,1,q.key)}
+
+/* ---------- Events for the new views ---------- */
+document.addEventListener("click",e=>{
+  const el=e.target.closest("[data-a]"); if(!el)return; const a=el.dataset.a;
+  if(!/^(n_|gm_|cv_|gr_)/.test(a))return;
+  const tl=P().target;
+  switch(a){
+    case"n_open":ui.num={level:el.dataset.l||"n1",mode:"explore",sel:null}; route="numbers"; render(); window.scrollTo(0,0); break;
+    case"n_level":ui.num={level:el.dataset.l,mode:ui.num.mode==="steps"&&el.dataset.l!=="n4"?"explore":ui.num.mode,sel:null}; render(); break;
+    case"n_mode":ui.num.mode=el.dataset.m; ui.num.q=null; render(); break;
+    case"n_pick":{const n=+el.dataset.n; ui.num.sel=n; ui.num.hl=n; sayNum(n); if(ui.num.mode==="explore")render(); else document.querySelectorAll(".step").forEach(b=>b.classList.toggle("on",+b.dataset.n===n)); break}
+    case"n_say":sayNum(+el.dataset.n); break;
+    case"n_count":{const blocks=[STEPS.slice(0,10),STEPS.slice(10,19),STEPS.slice(19)], b=blocks[+el.dataset.b]; let i=0;
+      const step=()=>{if(i>=b.length||route!=="numbers")return; const n=b[i++]; document.querySelectorAll(".step").forEach(x=>x.classList.toggle("on",+x.dataset.n===n)); sayNum(n,()=>setTimeout(step,350))}; step(); break}
+    case"n_opt":{const q=ui.num.q; if(q.done)break; q.pick=+el.dataset.n; numAnswer(q.pick===q.n); break}
+    case"n_check":{const q=ui.num.q, v=(document.getElementById("numAns")||{}).value||""; q.typed=v; numAnswer(+v.replace(/[^\d]/g,"")===q.n&&/\d/.test(v)); break}
+    case"n_next":{const q=ui.num.q; Object.assign(q,numQuestion(ui.num.level),{i:q.i+1,done:false,pick:null,typed:"",right:null}); render(); if(q.type==="hear"&&q.i<q.total)setTimeout(()=>sayNum(q.n),200); break}
+    case"n_again":ui.num.q=null; render(); break;
+    case"gm_start":startGame(el.dataset.g); break;
+    case"gm_speed":{const G=ui.game; if(G.over||G.flash)break; const ok=el.dataset.id===G.q.id; G.flash={id:el.dataset.id,cls:ok?"ok":"no"};
+      if(ok){G.score++; TTS.speak(BY[G.q.id][tl],tl,1,G.q.id)} addXP(ok?2:0,ok,"vocab"); render();
+      setTimeout(()=>{if(ui.game!==G||G.over)return; G.flash=null; G.q=speedQ(G); render()},ok?450:900); break}
+    case"gm_flip":{const G=ui.game, i=+el.dataset.i; if(G.open.length>=2||G.open.includes(i))break; G.open.push(i);
+      if(G.open.length===2){G.moves++; const [x,y]=G.open.map(k=>G.cards[k]);
+        if(x.id===y.id&&x.s!==y.s){G.found.push(x.id); G.open=[]; TTS.speak(BY[x.id][tl],tl,1,x.id); addXP(3,true,"vocab"); if(G.found.length*2===G.cards.length){G.score=G.moves; endGame(G); break}}
+        else setTimeout(()=>{if(ui.game===G){G.open=[]; render()}},900)}
+      render(); break}
+    case"gm_letter":case"gm_unletter":{const G=ui.game, i=+el.dataset.i; if(a==="gm_letter")G.ans.push(i); else G.ans=G.ans.filter(x=>x!==i);
+      if(G.ans.length===G.letters.length){const ok=G.ans.map(k=>G.letters[k]).join("")===G.letters.join(""); G.res=ok?"ok":"no"; if(ok){G.ok++; G.score+=1} addXP(ok?5:1,ok,"write"); TTS.speak(G.words[G.i][tl],tl,1,G.words[G.i].id)}
+      render(); break}
+    case"gm_spellclear":ui.game.ans=[]; render(); break;
+    case"gm_spellskip":{const G=ui.game; G.res="no"; render(); break}
+    case"gm_spellnext":{const G=ui.game; G.i++; if(G.i>=G.words.length){endGame(G); break} spellSetup(G); render(); break}
+    case"gm_rush":{const G=ui.game; if(G.over)break; const inp=document.getElementById("rushIn"), v=(inp&&inp.value)||""; const ok=+v.replace(/[^\d]/g,"")===G.n&&/\d/.test(v);
+      if(ok)G.score++; addXP(ok?3:0,ok,"listen"); G.last={n:G.n,ok}; G.n=practiceNumber(["n1","n2","n3"][Math.floor(Math.random()*3)]); render(); document.getElementById("rushIn")?.focus(); setTimeout(()=>sayNum(G.n),ok?150:1800); break}
+    case"cv_open":convStart(el.dataset.c); break;
+    case"cv_say":{const l=LINE_BY[el.dataset.l]; TTS.speak(l[tl],tl,1,l.id); break}
+    case"cv_pick":convAnswer(el.dataset.l,false); break;
+    case"cv_speak":convListen(); break;
+    case"gr_open":ui.gram={id:el.dataset.g}; route="grammar"; render(); window.scrollTo(0,0); break;
+    case"gr_say":TTS.speak(el.dataset.t,tl,1,el.dataset.k||undefined); break;
+    case"gr_quiz":{const g=GRAMMAR_BY[ui.gram.id]; ui.gram.q=grammarQuiz(g,ITEMS,8); ui.gram.i=0; ui.gram.ok=0; ui.gram.ans=undefined; render(); break}
+    case"gr_pick":{const s=ui.gram, q=s.q[s.i]; if(s.ans!==undefined)break; s.ans=el.dataset.v; const ok=s.ans===q.a; if(ok)s.ok++; addXP(ok?6:1,ok,"write"); sayGrammar(q); render(); break}
+    case"gr_next":{const s=ui.gram; s.i++; s.ans=undefined; if(s.i>=s.q.length){(D.gram=D.gram||{})[s.id]={c:s.ok,n:s.q.length,at:Date.now()}; persist()} render(); break}
+  }
+});
+document.addEventListener("keydown",e=>{
+  if(e.key!=="Enter")return;
+  if(e.target.id==="numAns"&&ui.num&&ui.num.q&&!ui.num.q.done)document.querySelector('[data-a="n_check"]')?.click();
+  if(e.target.id==="rushIn")document.querySelector('[data-a="gm_rush"]')?.click();
+});
+document.addEventListener("input",e=>{
+  if(e.target.id==="numIn"){const v=e.target.value.replace(/[^\d]/g,""); ui.num.typed=e.target.value; if(v!==""&&+v<=1e6){ui.num.sel=+v; const box=document.querySelector(".num-sel"); if(box){box.innerHTML=`<div class="row between"><div>${numBig(+v)}</div><button class="btn gold" data-a="n_say" data-n="${+v}">${ic("play")}${t("listen")}</button></div>${numWordHtml(+v)}`}}}
+});
+document.addEventListener("change",e=>{if(e.target.dataset.cvhint!==undefined&&ui.conv){ui.conv.hint=e.target.checked; render()}});
+
+
 /* ---------- Events ---------- */
 let sheet=null;
 function openSheet(html){sheet=html;document.getElementById("layer").innerHTML=html;const s=document.querySelector(".sheet");s&&s.querySelector("button,input")?.focus()}
@@ -770,4 +1023,4 @@ window.addEventListener("beforeinstallprompt",e=>{e.preventDefault(); installEvt
 if("serviceWorker" in navigator&&!isNative&&location.protocol==="https:"){
   navigator.serviceWorker.register("sw.js").then(reg=>{if(!navigator.serviceWorker.controller)reg.addEventListener("updatefound",()=>{const w=reg.installing; w&&w.addEventListener("statechange",()=>{if(w.state==="activated")toast(t("offlineReady"))})})}).catch(()=>{});
 }
-window.__bhasha={D,TTS,P,stateOf,buildSession,render,deck,glanceStart,glanceStop};
+window.__bhasha={D,TTS,P,stateOf,buildSession,render,deck,glanceStart,glanceStop,ui};

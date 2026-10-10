@@ -1,4 +1,4 @@
-# Test report – v1.2.0
+# Test report – v1.3.0
 
 Date: 2026-10-10. Status legend: ✅ pass · ⚠️ needs action or known limitation. Release v1.0.0 built all platforms on the first run.
 
@@ -39,6 +39,15 @@ Date: 2026-10-10. Status legend: ✅ pass · ⚠️ needs action or known limita
 | Browser: Spanish interface + Spanish learning session end to end | ✅ | – | – | – | – |
 | Browser: review session with match, order, write, translate, fill and reading; per-skill progress card | ✅ | Duplicate isNative declaration broke the app | High | Removed old declaration | ✅ |
 | Browser: reading text, tap-to-translate, questions; notebook notes, own word, CSV export; Glance mode | ✅ | Dictionary link rendered as underlined link | Low | Link styled as button | ✅ |
+| Unit: number words 0–1,000,000 in 5 languages (known spellings, unique words, unique audio parts, romanisation) | ✅ | – | – | – | – |
+| Unit: steps to a million, digit grouping (1.000.000 / 1,000,000 / 10,00,000), practice ranges have audio | ✅ | – | – | – | – |
+| Unit: 6 conversations complete in 5 languages, alternating turns, 3 distinct reply options | ✅ | – | – | – | – |
+| Unit: 16 grammar topics – rules in 5 languages, quizzes with answer among options, Korean batchim rule | ✅ | – | – | – | – |
+| Unit: audio jobs for number parts, conversation lines, grammar phrases; unique keys | ✅ | – | – | – | – |
+| Browser: numbers – explore, type 347, 28 steps to a million, 10/10 practice | ✅ | Long German number words overflowed options on phones | Medium | Words wrap inside options | ✅ |
+| Browser: games – speed round + new best, memory solved in 6 moves, spelling, number rush | ✅ | – | – | – | – |
+| Browser: conversation – wrong reply marked, all turns answered, 3/4 score, translations toggle | ✅ | – | – | – | – |
+| Browser: grammar – German, Spanish, Korean rule, table and full practice round | ✅ | Korean options showed romanisation only for the right answer | Medium (gave answer away) | Romanisation only when every option has it | ✅ |
 | Android: widget provider, widget plugin, notifications plugin compile in CI (assembleRelease) | ✅ | – | – | – | – |
 | Android/iOS lock-screen notifications and widget on a real device | ⚠️ | Not testable here | – | Check on the S23 Ultra after install | Pending device |
 

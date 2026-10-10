@@ -17,6 +17,10 @@ One web codebase ships everywhere:
 - **Daily plan** sized to 10–60 minutes and your focus across the **four skills** – listening, reading, speaking, writing – with vocabulary as the core. It adapts: fewer new words when accuracy drops or reviews pile up. Progress shows accuracy per skill.
 - **Spaced repetition** with five visible states (New, Learning, Familiar, Mastered, Needs review). Every card says why it is shown.
 - **Exercises** (active recall first): study cards, multiple choice, recall, typing, dictation, listen-and-identify, matching pairs, fill-in-the-blank, word order, sentence translation, writing your own sentence, graded reading texts with tap-to-translate and questions, pronunciation.
+- **Numbers 0 – 1,000,000**: explore and hear every number up to 1,000, type any number up to a million, "Steps to a million" (thousands → ten thousands → hundred thousands) and practice rounds. Nepali with lakh grouping and Devanagari digits, Korean with 만.
+- **Interactive conversations**: six everyday situations (café, meeting someone, hotel, directions, market, doctor) – the native speaker talks, you answer by choosing or by speaking.
+- **Grammar**: 16 short topics with a rule in your language, a table with native audio and generated practice (verb forms, der/die/das, el/la, ser/estar, Korean particles, Nepali verb endings).
+- **Vocabulary games**: speed round, memory pairs, spelling and number rush, with best scores.
 - **Learn in context and read widely**: every word comes with an example sentence; six reading texts from beginner to advanced.
 - **Active notebook**: meaning, your own sentence, synonyms and notes for any word; add your own words (they join the review cycle); dictionary lookup (Oxford Learner's Dictionaries for English, Duden, RAE, Naver); CSV export.
 - **Passive exposure**: Android home-screen/lock-screen widget with a changing word, quiet lock-screen word notifications (Android/iOS, 3–10 a day in your chosen hours) and Glance mode, a full-screen slideshow on any device.
@@ -78,6 +82,8 @@ docs/                architecture, release, privacy, test report
 ```
 
 ## Documentation
+
+- [Mondly analysis](docs/MONDLY-ANALYSIS.md) – what Bhasha 1.3 adopted and why
 
 - [Architecture and technology decision](docs/ARCHITECTURE.md)
 - [Release guide](docs/RELEASE.md)

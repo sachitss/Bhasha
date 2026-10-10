@@ -11,7 +11,7 @@ on:
         default: false
   push:
     branches: [main]
-    paths: [web/js/content.js, scripts/generate-audio.mjs, scripts/generate-audio-piper.py, scripts/audio-jobs.mjs]
+    paths: [web/js/content.js, web/js/numbers.js, web/js/practice.js, scripts/generate-audio.mjs, scripts/generate-audio-piper.py, scripts/audio-jobs.mjs]
 permissions:
   contents: write
 concurrency: { group: audio, cancel-in-progress: false }

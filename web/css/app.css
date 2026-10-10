@@ -220,3 +220,39 @@ details.nbbox svg,.eyebrow svg{width:16px;height:16px;vertical-align:-3px;fill:n
 @media (prefers-reduced-motion:reduce){.gl-card{animation:none}}
 @media (max-width:420px){.match .opt{font-size:15px;padding:10px}}
 a.btn{text-decoration:none;color:inherit}
+
+/* ---- v1.3: numbers, games, conversations, grammar ---- */
+.opts.one{grid-template-columns:1fr}
+.num-d{font-family:var(--f-display);font-size:34px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.01em}
+.num-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px}
+.num-tile{border:1.5px solid var(--line);background:var(--surface);border-radius:12px;min-height:52px;font-family:var(--f-display);font-size:18px;font-variant-numeric:tabular-nums}
+.num-tile:hover{border-color:var(--brand)}
+.num-tile.on{background:var(--brand);border-color:var(--brand);color:var(--brand-ink);font-weight:700}
+.ladder{display:flex;flex-direction:column;gap:6px}
+.step{display:grid;grid-template-columns:minmax(110px,auto) 1fr;gap:12px;align-items:center;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 12px;min-height:48px}
+.step .num-d{font-size:18px}
+.step span:last-child{font-family:var(--f-display);font-size:16px;overflow-wrap:anywhere}
+.step.on{border-color:var(--accent);background:var(--accent-soft)}
+.game-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.game-card{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:16px;padding:14px;min-height:120px}
+.game-card:hover{border-color:var(--brand)}
+.game-card .gi{font-size:26px;line-height:1}
+.mem-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media (min-width:640px){.mem-grid{grid-template-columns:repeat(4,1fr)}}
+.mem{min-height:84px;border-radius:12px;border:1.5px solid var(--brand);background:var(--brand);color:var(--brand-ink);font-size:26px;font-weight:700;padding:6px;overflow-wrap:anywhere}
+.mem.up{background:var(--surface);color:var(--ink);font-size:16px;font-weight:500;font-family:var(--f-display)}
+.mem.done{border-color:var(--good);background:color-mix(in srgb,var(--good) 14%,var(--surface))}
+.chat{display:flex;flex-direction:column;gap:10px}
+.bubble{position:relative;max-width:86%;padding:10px 46px 10px 14px;border-radius:16px;font-family:var(--f-display);font-size:17px;line-height:1.45}
+.bubble.them{align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:4px}
+.bubble.me{align-self:flex-end;background:var(--brand);color:var(--brand-ink);border-bottom-right-radius:4px}
+.bubble.me .rom,.bubble.me .muted{color:inherit;opacity:.8}
+.bubble .icon-btn{position:absolute;top:6px;right:6px;min-height:32px;padding:4px 6px;background:transparent;border:0;color:inherit}
+.bubble .small{font-family:var(--f-body)}
+.gtable-wrap{overflow-x:auto}
+.gtable{border-collapse:collapse;width:100%;font-size:16px}
+.gtable th,.gtable td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+.gtable th{font-size:13px;color:var(--muted);font-weight:700}
+.cellbtn{all:unset;cursor:pointer;font-family:var(--f-display);border-radius:6px;padding:2px 4px}
+.cellbtn:hover,.cellbtn:focus-visible{background:var(--accent-soft);outline:none}
+.opt,.word,.num-sel .word{overflow-wrap:anywhere;min-width:0}
