@@ -17,10 +17,10 @@ jobs:
       GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
-        with: { repository: sachitss/lingua, ref: ja-content, path: lingua, lfs: false }
+        with: { repository: sachitss/lingua, ref: el-content, path: lingua, lfs: false }
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
-      - name: Azure Neural TTS (Italian, French, Japanese)
+      - name: Azure Neural TTS (Greek)
         working-directory: lingua/app
         run: |
           command -v ffmpeg || (sudo apt-get update && sudo apt-get install -y ffmpeg)
@@ -30,7 +30,7 @@ jobs:
       - name: Package and attach to the pre-release lingua-audio
         working-directory: lingua/app/www/audio
         run: |
-          zip -q -r $GITHUB_WORKSPACE/lingua-audio-it-fr-ja.zip it-f it-m fr-f fr-m ja-f ja-m index.json hashes.json CREDITS.md
-          ls -la $GITHUB_WORKSPACE/lingua-audio-it-fr-ja.zip
+          zip -q -r $GITHUB_WORKSPACE/lingua-audio-el.zip el-f el-m index.json hashes.json CREDITS.md
+          ls -la $GITHUB_WORKSPACE/lingua-audio-el.zip
           gh release view lingua-audio -R ${{ github.repository }} >/dev/null 2>&1 || gh release create lingua-audio -R ${{ github.repository }} --prerelease --title "Lingua audio (temporary)" --notes "Generated audio for sachitss/lingua. Temporary." --target lingua-audio
-          gh release upload lingua-audio $GITHUB_WORKSPACE/lingua-audio-it-fr-ja.zip -R ${{ github.repository }} --clobber
+          gh release upload lingua-audio $GITHUB_WORKSPACE/lingua-audio-el.zip -R ${{ github.repository }} --clobber
