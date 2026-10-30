@@ -1,0 +1,36 @@
+# Temporary: generates Azure neural audio for the Lingua app (sachitss/lingua) with this repository's
+# Azure Speech key. Only clips that are missing or changed are generated; the result is attached to the
+# pre-release "lingua-audio" for Lingua to take over. Delete this branch afterwards.
+name: Lingua audio
+on:
+  push:
+    branches: [lingua-audio]
+permissions:
+  contents: write
+concurrency: { group: lingua-audio, cancel-in-progress: false }
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    env:
+      AZURE_SPEECH_KEY: ${{ secrets.AZURE_SPEECH_KEY }}
+      AZURE_SPEECH_REGION: ${{ secrets.AZURE_SPEECH_REGION }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { repository: sachitss/lingua, ref: ja-content, path: lingua, lfs: false }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Azure Neural TTS (Italian, French, Japanese)
+        working-directory: lingua/app
+        run: |
+          command -v ffmpeg || (sudo apt-get update && sudo apt-get install -y ffmpeg)
+          test -n "$AZURE_SPEECH_KEY" || { echo "AZURE_SPEECH_KEY is not set"; exit 1; }
+          node tools/generate-audio.mjs --dry-run
+          node tools/generate-audio.mjs
+      - name: Package and attach to the pre-release lingua-audio
+        working-directory: lingua/app/www/audio
+        run: |
+          zip -q -r $GITHUB_WORKSPACE/lingua-audio-it-fr-ja.zip it-f it-m fr-f fr-m ja-f ja-m index.json hashes.json CREDITS.md
+          ls -la $GITHUB_WORKSPACE/lingua-audio-it-fr-ja.zip
+          gh release view lingua-audio -R ${{ github.repository }} >/dev/null 2>&1 || gh release create lingua-audio -R ${{ github.repository }} --prerelease --title "Lingua audio (temporary)" --notes "Generated audio for sachitss/lingua. Temporary." --target lingua-audio
+          gh release upload lingua-audio $GITHUB_WORKSPACE/lingua-audio-it-fr-ja.zip -R ${{ github.repository }} --clobber
